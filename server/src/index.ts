@@ -10,6 +10,7 @@ import logger from "./utils/logger";
 import { connectDB } from "./prisma";
 import { errorHandler } from "./middleware/errorHandler";
 import authRoutes from "./routes/authRoutes";
+import { healthCheck } from "./controller/authController";
 
 const app: Express = express();
 const PORT = process.env.PORT;
@@ -33,7 +34,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
-
+app.get("/", healthCheck);
 app.use(errorHandler);
 
 // Initialize connections and start server

@@ -186,7 +186,6 @@ export const healthCheck = async (
   next: NextFunction
 ) => {
   try {
-    // Test database connection
     const startTime = Date.now();
     await prisma.$queryRaw`SELECT 1`;
     const dbResponseTime = Date.now() - startTime;
