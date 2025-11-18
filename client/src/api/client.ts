@@ -66,15 +66,15 @@ apiClient.interceptors.response.use(
 
       try {
         // request new access token via refresh endpoint (cookies sent)
-        const response = await apiClient.post("/auth/refresh");
+        const response = await apiClient.post("/api/auth/refresh");
         isRefreshing = false;
         processQueue(null, response.data.accessToken);
         return apiClient(originalRequest);
-      } catch (e) {
+      } catch (error) {
         isRefreshing = false;
-        processQueue(e, null);
+        processQueue(error, null);
         // optionally redirect to login
-        return Promise.reject(e);
+        return Promise.reject(error);
       }
     }
 

@@ -11,3 +11,9 @@ export interface AuthResponse {
   message: string;
   user: User;
 }
+export interface AuthState {
+  status: "idle";
+  isAuthenticated: false;
+  error: null;
+  user: null;
+}
