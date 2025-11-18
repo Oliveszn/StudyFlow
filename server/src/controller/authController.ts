@@ -17,39 +17,85 @@ interface MyJwtPayload extends JwtPayload {
 
 export const registerUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    logger.info("Registration endpoint hit...");
-    //validate the schema
-    const request = registerUserSchema.parse(req.body);
+    try {
+      logger.info("Registration endpoint hit...");
+      //validate the schema
+      const request = registerUserSchema.parse(req.body);
 
-    if (!request) return next(ApiError.validation("All fields are required"));
+      if (!request) return next(ApiError.validation("All fields are required"));
 
-    let existingUser = await prisma.user.findUnique({
+      let existingUser = await prisma.user.findUnique({
+        where: { email: request.email },
+      });
+      if (existingUser) {
+        logger.warn("User already exists");
+        throw ApiError.conflict("User already exists");
+      }
+
+      const hash = await argon2.hash(request.password);
+
+      const user = await prisma.user.create({
+        data: {
+          firstName: request.firstName,
+          lastName: request.lastName,
+          email: request.email,
+          password: hash,
+        },
+      });
+      logger.warn("User saved successfully", user.id);
+
+      const accessToken = generateAccessToken(res, user.id, user.role);
+      const refreshToken = generateRefreshToken(res, user.id, user.role);
+
+      ///here we send both tokens to frontend
+      res.status(201).json({
+        success: true,
+        message: "User Registered successfully, Welcome!",
+        data: {
+          user: {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            isEmailVerified: user.isEmailVerified,
+            role: user.role,
+          },
+          accessToken,
+          refreshToken,
+        },
+      });
+    } catch (error: any) {
+      next(ApiError.internal(`Registration failed: ${error.message}`));
+    }
+  }
+);
+
+export const loginUser = asyncHandler(async (req, res, next) => {
+  try {
+    logger.info("Login endpoint hit...");
+    const request = loginSchema.parse(req.body);
+    if (!request) return next(ApiError.badRequest("All fields are required"));
+
+    const user = await prisma.user.findUnique({
       where: { email: request.email },
     });
-    if (existingUser) {
-      logger.warn("User already exists");
-      throw ApiError.conflict("User already exists");
-    }
 
-    const hash = await argon2.hash(request.password);
+    if (!user) return next(ApiError.validation("Invalid email and password"));
 
-    const user = await prisma.user.create({
-      data: {
-        firstName: request.firstName,
-        lastName: request.lastName,
-        email: request.email,
-        password: hash,
-      },
-    });
-    logger.warn("User saved successfully", user.id);
+    const isPasswordMatch = await argon2.verify(
+      user.password,
+      request.password
+    );
+
+    if (!isPasswordMatch)
+      return next(ApiError.validation("Invalid email and password"));
 
     const accessToken = generateAccessToken(res, user.id, user.role);
     const refreshToken = generateRefreshToken(res, user.id, user.role);
 
-    ///here we send both tokens to frontend
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: "User Registered successfully, Welcome!",
+      message: "User logged in successfully",
       data: {
         user: {
           id: user.id,
@@ -63,94 +109,71 @@ export const registerUser = asyncHandler(
         refreshToken,
       },
     });
+  } catch (error: any) {
+    next(ApiError.internal(`Login failed: ${error.message}`));
   }
-);
-
-export const loginUser = asyncHandler(async (req, res, next) => {
-  logger.info("Login endpoint hit...");
-  const request = loginSchema.parse(req.body);
-
-  if (!request) return next(new ApiError("All fields are required", 400));
-
-  const user = await prisma.user.findUnique({
-    where: { email: request.email },
-  });
-
-  if (!user) return next(ApiError.validation("Invalid email and password"));
-
-  const isPasswordMatch = await argon2.verify(request.password, user.password);
-
-  if (!isPasswordMatch)
-    return next(ApiError.validation("Invalid email and password"));
-
-  const accessToken = generateAccessToken(res, user.id, user.role);
-  const refreshToken = generateRefreshToken(res, user.id, user.role);
-
-  res.status(200).json({
-    success: true,
-    message: "User logged in successfully",
-    data: {
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        isEmailVerified: user.isEmailVerified,
-        role: user.role,
-      },
-      accessToken,
-      refreshToken,
-    },
-  });
 });
 
 export const refreshToken = asyncHandler(async (req, res, next) => {
-  logger.info("Refresh Token endpoint hit...");
-  const refreshToken = req.cookies.refreshToken;
+  try {
+    logger.info("Refresh Token endpoint hit...");
+    const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
-  if (!refreshToken) return next(ApiError.validation("No refresh token"));
+    if (!refreshToken) return next(ApiError.validation("No refresh token"));
 
-  const decoded = jwt.verify(
-    refreshToken,
-    process.env.REFRESH_TOKEN_SECRET as string
-  ) as MyJwtPayload;
+    // const decoded = jwt.verify(
+    //   refreshToken,
+    //   process.env.REFRESH_TOKEN_SECRET as string
+    // ) as MyJwtPayload;
 
-  const user = await prisma.user.findUnique({
-    where: { id: decoded.userId },
-  });
+    let payload;
+    try {
+      payload = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET as string
+      ) as MyJwtPayload & { userId: string; userRole?: string };
+    } catch (e) {
+      return next(ApiError.unauthorized("Invalid refresh token"));
+    }
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+    });
 
-  if (!user) return next(ApiError.notFound("User not found"));
+    if (!user) return next(ApiError.notFound("User not found"));
 
-  const newAccessToken = generateAccessToken(res, user.id, user.role);
+    const newAccessToken = generateAccessToken(res, user.id, user.role);
 
-  res.status(200).json({
-    success: true,
-    data: {
-      user: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        isEmailVerified: user.isEmailVerified,
-        role: user.role,
+    res.status(200).json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          isEmailVerified: user.isEmailVerified,
+          role: user.role,
+        },
+        accessToken: newAccessToken,
       },
-      newAccessToken,
-    },
-  });
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 export const logoutUser = asyncHandler(async (req, res, next) => {
   res.clearCookie("refreshToken", {
     httpOnly: true,
     sameSite: "none",
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     path: "/",
   });
 
   res.clearCookie("accessToken", {
     httpOnly: true,
     sameSite: "none",
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     path: "/",
   });
 
@@ -168,7 +191,6 @@ export const getMe = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("User not found"));
   }
 
-  // return the response
   res.status(200).json({
     user: {
       id: user.id,
