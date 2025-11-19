@@ -4,6 +4,8 @@ import { Provider } from "react-redux";
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import store from "@/store/store";
+import AuthProvider from "./AuthProvider";
+import CheckAuth from "@/components/common/CheckAuth";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(
@@ -31,11 +33,9 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        {/* <AuthProvider> */}
-        {/* <CheckAuth */}
-        {children}
-        {/* </CheckAuth> */}
-        {/* </AuthProvider> */}
+        <AuthProvider>
+          <CheckAuth>{children}</CheckAuth>
+        </AuthProvider>
       </Provider>
     </QueryClientProvider>
   );

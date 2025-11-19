@@ -9,11 +9,17 @@ export interface User {
 export interface AuthResponse {
   success: boolean;
   message: string;
-  user: User;
+  data: {
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+  };
 }
 export interface AuthState {
   status: "idle";
-  isAuthenticated: false;
-  error: null;
-  user: null;
+  isAuthenticated: boolean;
+  error: String | null;
+  user: User | null;
+  accessToken?: String | null;
+  refreshToken?: String | null;
 }

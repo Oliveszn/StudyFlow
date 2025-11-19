@@ -40,4 +40,12 @@ export const authApi = {
     const response = await apiClient.post(`/api/auth/refresh-token`);
     return response.data;
   },
+
+  checkAuthStatus: async () => {
+    const response = await apiClient.get(`/api/auth/me`, {
+      withCredentials: true,
+    });
+
+    return response.data;
+  },
 };
