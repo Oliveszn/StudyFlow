@@ -11,10 +11,13 @@ import { connectDB } from "./prisma";
 import { errorHandler } from "./middleware/errorHandler";
 import authRoutes from "./routes/authRoutes";
 import { healthCheck } from "./controller/authController";
+import Redis from "ioredis";
+import connectRedis from "./config/redis";
+import { ddosProtection, generalLimiter } from "./middleware/rateLimit";
 
 const app: Express = express();
 const PORT = process.env.PORT;
-
+let redisClient: Redis;
 app.use(helmet());
 app.use(
   cors({
@@ -32,15 +35,18 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+app.use(ddosProtection);
 
+app.use("/api", generalLimiter);
 app.use("/api/auth", authRoutes);
-app.get("/", healthCheck);
+app.get("/api/users", healthCheck);
 app.use(errorHandler);
 
-// Initialize connections and start server
+//start server
 const startServer = async () => {
   try {
     await connectDB();
+    redisClient = await connectRedis();
 
     app.listen(PORT, () => {
       logger.info(`live on ${PORT}`);
