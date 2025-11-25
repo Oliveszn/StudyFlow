@@ -10,6 +10,7 @@ import logger from "./utils/logger";
 import { connectDB } from "./prisma";
 import { errorHandler } from "./middleware/errorHandler";
 import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
 import { healthCheck } from "./controller/authController";
 import Redis from "ioredis";
 import connectRedis from "./config/redis";
@@ -39,7 +40,8 @@ app.use(ddosProtection);
 
 app.use("/api", generalLimiter);
 app.use("/api/auth", authRoutes);
-app.get("/api/users", healthCheck);
+app.use("/api/user", userRoutes);
+app.get("/", healthCheck);
 app.use(errorHandler);
 
 //start server

@@ -19,7 +19,6 @@ export const registerUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       logger.info("Registration endpoint hit...");
-      //validate the schema
       const request = registerUserSchema.parse(req.body);
 
       if (!request) return next(ApiError.validation("All fields are required"));
