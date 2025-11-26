@@ -13,6 +13,25 @@ enum UserRole {
   ADMIN
 }
 
+enum LessonType {
+  VIDEO
+  ARTICLE
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  REFUNDED
+}
+
 model User {
   id                String   @id @default(uuid())
   email             String   @unique
@@ -28,9 +47,255 @@ model User {
   
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  coursesCreated    Course[] @relation("InstructorCourses")
+  enrollments       Enrollment[]
+  lessonProgress    LessonProgress[]
+  transactions      Transaction[]
+  reviews           Review[]        
+  wishlists         Wishlist[] 
      
   @@index([email])
   @@index([role])
   @@map("users")
 }
 
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  courses     Course[]
+  
+  @@index([slug])
+  @@map("categories")
+}
+
+model Course {
+  id                String       @id @default(cuid())
+  title             String
+  slug              String       @unique
+  subtitle          String?
+  description       String       @db.Text
+  
+  // Instructor
+  instructorId      String
+  instructor        User         @relation("InstructorCourses", fields: [instructorId], references: [id], onDelete: Cascade)
+  
+  // Media
+  thumbnail         String?
+  previewVideo      String?
+  
+  // Pricing
+  price             Decimal      @db.Decimal(10, 2)
+  discountPrice     Decimal?     @db.Decimal(10, 2)
+  currency          String       @default("USD")
+  
+  // Course details
+  language          String       @default("en")
+  duration          Int?         // Total duration in minutes
+  
+  // Requirements and outcomes
+  requirements      String[]     // What students need before taking course
+  whatYouWillLearn  String[]     // Learning outcomes
+  
+  // Status
+  isPublished       Boolean      @default(false)
+  publishedAt       DateTime?
+  
+  // Stats (denormalized for performance)
+  enrollmentCount   Int          @default(0)
+  averageRating     Decimal?     @db.Decimal(3, 2)
+  reviewCount       Int          @default(0)
+  
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  
+  // Relations
+  sections          Section[]
+  enrollments       Enrollment[]
+  reviews           Review[]
+  categories Category[]
+  wishlists Wishlist[]
+  
+  @@index([instructorId])
+  @@index([slug])
+  @@index([isPublished])
+  @@index([averageRating])
+  @@index([createdAt])
+  @@map("courses")
+}
+
+model Section {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  order       Int      // Position in course
+  
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  lessons     Lesson[]
+  
+  @@index([courseId])
+  @@index([order])
+  @@map("sections")
+}
+
+model Lesson {
+  id            String     @id @default(cuid())
+  title         String
+  description   String?    @db.Text
+  type          LessonType
+  order         Int        // Position in section
+  
+  sectionId     String
+  section       Section    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  
+  // Content based on type
+  videoUrl      String?    // For VIDEO type
+  videoProvider String?    // e.g., "vimeo", "youtube", "s3"
+  videoDuration Int?       // Duration in seconds
+  
+  articleContent String?   @db.Text  // For ARTICLE type (rich text/markdown)
+  
+  // Resources
+  attachments   Json?      // Array of {name, url, size}
+  
+  // Settings
+  isFree        Boolean    @default(false) // Can be previewed without enrollment
+  isPublished   Boolean    @default(false)
+  
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  
+  // Relations
+  lessonProgress    LessonProgress[]
+  
+  @@index([sectionId])
+  @@index([order])
+  @@index([type])
+  @@map("lessons")
+}
+
+model Enrollment {
+  id              String           @id @default(cuid())
+  
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  courseId        String
+  course          Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  status          EnrollmentStatus @default(ACTIVE)
+  
+  // Progress tracking (denormalized)
+  progress        Decimal          @default(0) @db.Decimal(5, 2) // Percentage
+  lastAccessedAt  DateTime?
+  completedAt     DateTime?
+  
+  // Payment info
+  pricePaid       Decimal          @db.Decimal(10, 2)
+  currency        String           @default("USD")
+  
+  enrolledAt      DateTime         @default(now())
+  expiresAt       DateTime?        // For time-limited courses
+  
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+  @@map("enrollments")
+}
+
+model LessonProgress {
+  id              String   @id @default(cuid())
+  
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  lessonId        String
+  lesson          Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  isCompleted     Boolean  @default(false)
+  completedAt     DateTime?
+  
+  // For video lessons
+  watchedDuration Int?     // Seconds watched
+  
+  lastAccessedAt  DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@index([isCompleted])
+  @@map("lesson_progress")
+}
+
+model Transaction {
+  id                String            @id @default(cuid())
+  
+  userId            String
+  user              User              @relation(fields: [userId], references: [id])
+  
+  // Payment details
+  amount            Decimal           @db.Decimal(10, 2)
+  currency          String            @default("USD")
+  status            TransactionStatus @default(PENDING)
+  
+  // Payment provider details
+  provider          String            // "stripe", "paypal", etc.
+  providerTransactionId String?       @unique
+  
+  // Related course (if applicable)
+  courseId          String?
+  courseName        String?           // Denormalized for history
+  
+  // Metadata
+  metadata          Json?             // Additional data from payment provider
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?  @db.Text
+
+  userId    String
+  courseId  String
+
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Wishlist {
+  id       String  @id @default(cuid())
+  userId   String
+  courseId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+}
