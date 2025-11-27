@@ -85,6 +85,9 @@ model Course {
   instructorId      String
   instructor        User         @relation("InstructorCourses", fields: [instructorId], references: [id], onDelete: Cascade)
   
+  categoryId        String
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
   // Media
   thumbnail         String?
   previewVideo      String?
@@ -92,7 +95,7 @@ model Course {
   // Pricing
   price             Decimal      @db.Decimal(10, 2)
   discountPrice     Decimal?     @db.Decimal(10, 2)
-  currency          String       @default("USD")
+  currency          String       @default("NGN")
   
   // Course details
   language          String       @default("en")
@@ -118,9 +121,9 @@ model Course {
   sections          Section[]
   enrollments       Enrollment[]
   reviews           Review[]
-  categories Category[]
   wishlists Wishlist[]
   
+  @@index([categoryId])
   @@index([instructorId])
   @@index([slug])
   @@index([isPublished])

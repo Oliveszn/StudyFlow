@@ -51,3 +51,19 @@ export const requireAuth = async (
     return next(ApiError.unauthorized("Invalid or expired token"));
   }
 };
+
+export const authorize = (roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !req.user.role) {
+      throw ApiError.unauthorized("Not authorized to access this route");
+    }
+
+    if (!roles.includes(req.user.role)) {
+      throw ApiError.forbidden(
+        `User role '${req.user.role}' is not authorized to access this route`
+      );
+    }
+
+    next();
+  };
+};

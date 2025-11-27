@@ -13,12 +13,12 @@ import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 import { healthCheck } from "./controller/authController";
 import Redis from "ioredis";
-import connectRedis from "./config/redis";
+// import connectRedis from "./config/redis";
 import { ddosProtection, generalLimiter } from "./middleware/rateLimit";
 
 const app: Express = express();
 const PORT = process.env.PORT;
-let redisClient: Redis;
+// let redisClient: Redis;
 app.use(helmet());
 app.use(
   cors({
@@ -48,7 +48,7 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
-    redisClient = await connectRedis();
+    // redisClient = await connectRedis();
 
     app.listen(PORT, () => {
       logger.info(`live on ${PORT}`);
