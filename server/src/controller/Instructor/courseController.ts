@@ -15,14 +15,12 @@ export const getInstructorCourses = asyncHandler(
 
     const where: any = { instructorId };
 
-    // Filter by publish status if provided
     if (status === "published") {
       where.isPublished = true;
     } else if (status === "draft") {
       where.isPublished = false;
     }
 
-    // Search by title
     if (search) {
       where.title = { contains: search as string, mode: "insensitive" };
     }
