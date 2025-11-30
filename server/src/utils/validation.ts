@@ -100,3 +100,45 @@ export const reorderSectionSchema = z.object({
     )
     .min(1),
 });
+
+/////LESSONS CREATION
+export const createLessonSchema = z.object({
+  title: z.string().min(3).max(200),
+  description: z.string().max(2000).optional().nullable().or(z.literal("")),
+  type: z.enum(["VIDEO", "ARTICLE"]),
+  videoUrl: z.string().url().optional(),
+  videoProvider: z.string().optional(),
+  videoDuration: z.number().int().min(0).optional(),
+  articleContent: z.string().optional(),
+  isFree: z.boolean().optional(),
+});
+
+export const updateLessonSchema = z.object({
+  title: z.string().min(3).max(200).optional(),
+  description: z.string().max(2000).optional().nullable().or(z.literal("")),
+  type: z.enum(["VIDEO", "ARTICLE"]),
+  videoUrl: z.string().url().optional().nullable().or(z.literal("")),
+  videoProvider: z.string().optional().nullable().or(z.literal("")),
+  videoDuration: z.number().int().min(0).optional().nullable(),
+  articleContent: z.string().optional().nullable().or(z.literal("")),
+  isFree: z.boolean().optional(),
+  isPublished: z.boolean().optional(),
+});
+
+export const reorderLessonSchema = z.object({
+  lessonOrders: z
+    .array(
+      z.object({
+        lessonId: z.string(),
+        order: z.number().int().min(1),
+      })
+    )
+
+    .min(1),
+});
+
+export const addAttachmentSchema = z.object({
+  name: z.string(),
+  url: z.string().url(),
+  size: z.number().int().min(0).optional(),
+});
