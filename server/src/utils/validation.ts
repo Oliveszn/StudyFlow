@@ -78,3 +78,25 @@ export const updateCourseSchema = z.object({
 export const getCourseAnalyticsSchema = z.object({
   id: z.string(),
 });
+
+////SECTIONS CREATION
+export const createSectionSchema = z.object({
+  title: z.string().min(3).max(200),
+  description: z.string().max(1000).optional().nullable().or(z.literal("")),
+});
+
+export const updateSectionSchema = z.object({
+  title: z.string().min(3).max(200).optional(),
+  description: z.string().max(1000).optional().nullable().or(z.literal("")),
+});
+
+export const reorderSectionSchema = z.object({
+  sectionOrders: z
+    .array(
+      z.object({
+        sectionId: z.string(),
+        order: z.number().int().min(1),
+      })
+    )
+    .min(1),
+});

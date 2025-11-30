@@ -42,6 +42,13 @@ app.use("/api", generalLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.get("/", healthCheck);
+
+app.use("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
+});
 app.use(errorHandler);
 
 //start server
