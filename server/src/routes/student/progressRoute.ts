@@ -2,12 +2,12 @@ import express from "express";
 import { requireAuth, authorize } from "../../middleware/auth";
 import {
   getCourseProgress,
+  getLesson,
   getLessonVideoUrl,
   getStudentDashboard,
   markLessonComplete,
   updateVideoProgress,
 } from "../../controller/student/progressController";
-import { getLesson } from "../../controller/Instructor/lessonController";
 const router = express.Router();
 router.use(requireAuth);
 router.use(authorize(["STUDENT"]));

@@ -142,3 +142,14 @@ export const addAttachmentSchema = z.object({
   url: z.string().url(),
   size: z.number().int().min(0).optional(),
 });
+
+////REVIEWS
+export const createReviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().min(10).max(2000).optional().nullable().or(z.literal("")),
+});
+
+export const updateReviewSchema = z.object({
+  rating: z.number().int().min(1).max(5).optional(),
+  comment: z.string().min(10).max(2000).optional().nullable().or(z.literal("")),
+});

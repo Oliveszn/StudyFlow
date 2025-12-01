@@ -289,6 +289,8 @@ model Review {
   user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
+   @@unique([userId, courseId])
+
   createdAt DateTime @default(now())
 }
 
