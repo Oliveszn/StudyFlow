@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import prisma from "../../prisma";
 import { asyncHandler } from "../../middleware/errorHandler";
 import { ApiError } from "../../utils/error";
-import { generateSlug } from "../../utils/slug";
 import redisService from "../../config/redis";
 import { createCourseSchema, updateCourseSchema } from "../../utils/validation";
+import { generateUniqueSlug } from "../../utils/slug";
 
 export const getInstructorCourses = asyncHandler(
   async (req: Request, res: Response) => {
@@ -51,19 +51,6 @@ export const getInstructorCourses = asyncHandler(
     });
   }
 );
-
-async function generateUniqueSlug(title: string): Promise<string> {
-  let base = generateSlug(title);
-  let uniqueSlug = base;
-  let counter = 1;
-
-  while (await prisma.course.findUnique({ where: { slug: uniqueSlug } })) {
-    uniqueSlug = `${base}-${counter}`;
-    counter++;
-  }
-
-  return uniqueSlug;
-}
 
 export const createCourse = asyncHandler(
   async (req: Request, res: Response) => {
