@@ -56,8 +56,8 @@ export const createCourseSchema = z.object({
   language: z.string().default("en"),
   requirements: z.array(z.string()).optional(),
   whatYouWillLearn: z.array(z.string()).optional(),
-  thumbnail: z.string().url().optional(),
-  previewVideo: z.string().url().optional(),
+  // thumbnail: z.string().url().optional(),
+  // previewVideo: z.string().url().optional(),
 });
 
 export const updateCourseSchema = z.object({
@@ -71,8 +71,8 @@ export const updateCourseSchema = z.object({
   duration: z.number().min(0).optional(),
   requirements: z.array(z.string()).optional(),
   whatYouWillLearn: z.array(z.string()).optional(),
-  thumbnail: z.string().url().optional(),
-  previewVideo: z.string().url().optional(),
+  // thumbnail: z.string().url().optional(),
+  // previewVideo: z.string().url().optional(),
 });
 
 export const getCourseAnalyticsSchema = z.object({
@@ -106,9 +106,9 @@ export const createLessonSchema = z.object({
   title: z.string().min(3).max(200),
   description: z.string().max(2000).optional().nullable().or(z.literal("")),
   type: z.enum(["VIDEO", "ARTICLE"]),
-  videoUrl: z.string().url().optional(),
-  videoProvider: z.string().optional(),
-  videoDuration: z.number().int().min(0).optional(),
+  // videoUrl: z.string().url().optional(),
+  // videoProvider: z.string().optional(),
+  // videoDuration: z.number().int().min(0).optional(),
   articleContent: z.string().optional(),
   isFree: z.boolean().optional(),
 });
@@ -117,9 +117,9 @@ export const updateLessonSchema = z.object({
   title: z.string().min(3).max(200).optional(),
   description: z.string().max(2000).optional().nullable().or(z.literal("")),
   type: z.enum(["VIDEO", "ARTICLE"]),
-  videoUrl: z.string().url().optional().nullable().or(z.literal("")),
-  videoProvider: z.string().optional().nullable().or(z.literal("")),
-  videoDuration: z.number().int().min(0).optional().nullable(),
+  // videoUrl: z.string().url().optional().nullable().or(z.literal("")),
+  // videoProvider: z.string().optional().nullable().or(z.literal("")),
+  // videoDuration: z.number().int().min(0).optional().nullable(),
   articleContent: z.string().optional().nullable().or(z.literal("")),
   isFree: z.boolean().optional(),
   isPublished: z.boolean().optional(),

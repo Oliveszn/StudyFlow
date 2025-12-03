@@ -9,6 +9,10 @@ import {
   reorderLessonSchema,
   updateLessonSchema,
 } from "../../utils/validation";
+import {
+  deleteMediaFromCloudinary,
+  uploadMediaToCloudinary,
+} from "../../middleware/cloudinary";
 
 export const createLesson = asyncHandler(
   async (req: Request, res: Response) => {
@@ -38,14 +42,26 @@ export const createLesson = asyncHandler(
       );
     }
 
-    if (request.type === "VIDEO" && !request.videoUrl) {
-      throw ApiError.badRequest("Video URL is required for video lessons");
-    }
-
     if (request.type === "ARTICLE" && !request.articleContent) {
       throw ApiError.badRequest(
         "Article content is required for article lessons"
       );
+    }
+
+    let videoUrl = null;
+    let videoPublicId = null;
+    let videoDuration = null;
+
+    if (request.type === "VIDEO") {
+      if (!req.file) {
+        throw ApiError.badRequest("Video file is required");
+      }
+
+      const uploadResult: any = await uploadMediaToCloudinary(req.file);
+
+      videoUrl = uploadResult.secure_url;
+      videoPublicId = uploadResult.public_id;
+      videoDuration = uploadResult.duration;
     }
 
     // Get the current max order for lessons in this section
@@ -64,12 +80,12 @@ export const createLesson = asyncHandler(
         type: request.type,
         sectionId,
         order: nextOrder,
-        videoUrl: request.videoUrl,
-        videoProvider: request.videoProvider,
-        videoDuration: request.videoDuration,
+        videoUrl,
+        videoPublicId,
+        videoDuration,
         articleContent: request.articleContent,
         isFree: request.isFree || false,
-        isPublished: false, // Default to unpublished
+        isPublished: false,
       },
     });
 
@@ -128,14 +144,11 @@ export const updateLesson = asyncHandler(
 
     const updateData = updateLessonSchema.parse(req.body);
 
-    ////verify te section exists and it belongs to the instructor's cousre
     const existingLesson = await prisma.lesson.findFirst({
       where: {
         id,
         section: {
-          course: {
-            instructorId,
-          },
+          course: { instructorId },
         },
       },
       include: {
@@ -153,10 +166,13 @@ export const updateLesson = asyncHandler(
       throw ApiError.notFound("Lesson not found or you do not have permission");
     }
 
+    const prismaData: any = { ...updateData };
+
+    ///when switching type to video and no video uploaded
     if (updateData.type === "VIDEO" && existingLesson.type !== "VIDEO") {
-      if (!updateData.videoUrl) {
+      if (!req.file) {
         throw ApiError.badRequest(
-          "Video URL is required when changing to video lesson"
+          "Video file is required when changing to video lesson"
         );
       }
     }
@@ -167,11 +183,36 @@ export const updateLesson = asyncHandler(
           "Article content is required when changing to article lesson"
         );
       }
+
+      //// delete the old video when switching from video to article
+      if (existingLesson.videoPublicId) {
+        await deleteMediaFromCloudinary(existingLesson.videoPublicId);
+      }
+
+      prismaData.videoUrl = null;
+      prismaData.videoPublicId = null;
+      prismaData.videoDuration = null;
+    }
+
+    ///delete old video if changing it
+    if (
+      (existingLesson.type === "VIDEO" || updateData.type === "VIDEO") &&
+      req.file
+    ) {
+      if (existingLesson.videoPublicId) {
+        await deleteMediaFromCloudinary(existingLesson.videoPublicId);
+      }
+
+      const uploadResult: any = await uploadMediaToCloudinary(req.file);
+
+      prismaData.videoUrl = uploadResult.secure_url;
+      prismaData.videoPublicId = uploadResult.public_id;
+      prismaData.videoDuration = uploadResult.duration;
     }
 
     const lesson = await prisma.lesson.update({
       where: { id },
-      data: updateData,
+      data: prismaData,
     });
 
     await redisService.del(
@@ -214,6 +255,10 @@ export const deleteLesson = asyncHandler(
 
     if (!lesson) {
       throw ApiError.notFound("Lesson not found or you do not have permission");
+    }
+
+    if (lesson.videoPublicId) {
+      await deleteMediaFromCloudinary(lesson.videoPublicId);
     }
 
     // Delete lesson

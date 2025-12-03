@@ -10,13 +10,15 @@ import {
   unpublishCourse,
   getCourseAnalytics,
 } from "../../controller/Instructor/courseController";
+import multer from "multer";
 
+const upload = multer();
 const router = express.Router();
 router.use(requireAuth);
 router.use(authorize(["INSTRUCTOR", "ADMIN"]));
 
 router.get("/", getInstructorCourses);
-router.post("/", createCourse);
+router.post("/", upload.single("thumbnail"), createCourse);
 router.get("/:id", getCourseById);
 router.put("/:id", updateCourse);
 router.delete("/:id", deleteCourse);

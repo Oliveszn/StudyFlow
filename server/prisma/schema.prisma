@@ -90,6 +90,7 @@ model Course {
 
   // Media
   thumbnail         String?
+  thumbnailPublicId String?
   previewVideo      String?
   
   // Pricing
@@ -164,7 +165,7 @@ model Lesson {
   
   // Content based on type
   videoUrl      String?    // For VIDEO type
-  videoProvider String?    // e.g., "vimeo", "youtube", "s3"
+  videoPublicId String?
   videoDuration Int?       // Duration in seconds
   
   articleContent String?   @db.Text  // For ARTICLE type (rich text/markdown)

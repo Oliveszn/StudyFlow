@@ -5,6 +5,10 @@ import { ApiError } from "../../utils/error";
 import redisService from "../../config/redis";
 import { createCourseSchema, updateCourseSchema } from "../../utils/validation";
 import { generateUniqueSlug } from "../../utils/slug";
+import {
+  deleteMediaFromCloudinary,
+  uploadMediaToCloudinary,
+} from "../../middleware/cloudinary";
 
 export const getInstructorCourses = asyncHandler(
   async (req: Request, res: Response) => {
@@ -68,6 +72,24 @@ export const createCourse = asyncHandler(
       throw ApiError.notFound("Category not found");
     }
 
+    let thumbnailUrl = null;
+    let thumbnailPublicId = null;
+
+    if (req.file) {
+      const uploadResult: any = await uploadMediaToCloudinary(req.file);
+
+      thumbnailUrl = uploadResult.secure_url;
+      thumbnailPublicId = uploadResult.public_id;
+    }
+
+    //     let previewVideoUrl = null;
+
+    // if (req.files?.previewVideo) {
+    //   const result: any = await uploadMediaToCloudinary(req.files.previewVideo[0]);
+    //   previewVideoUrl = result.secure_url;
+
+    // }
+
     const course = await prisma.course.create({
       data: {
         title: request.title,
@@ -81,8 +103,9 @@ export const createCourse = asyncHandler(
         language: request.language || "en",
         requirements: request.requirements || [],
         whatYouWillLearn: request.whatYouWillLearn || [],
-        thumbnail: request.thumbnail,
-        previewVideo: request.previewVideo,
+        thumbnail: thumbnailUrl,
+        thumbnailPublicId,
+        // previewVideo: previewVideo,
         currency: "NGN",
       },
       include: {
@@ -184,6 +207,17 @@ export const updateCourse = asyncHandler(
       prismaData.categoryId = category.id;
     }
 
+    if (req.file) {
+      if (existingCourse.thumbnailPublicId) {
+        await deleteMediaFromCloudinary(existingCourse.thumbnailPublicId);
+      }
+
+      const uploadResult: any = await uploadMediaToCloudinary(req.file);
+
+      prismaData.thumbnail = uploadResult.secure_url;
+      prismaData.thumbnailPublicId = uploadResult.public_id;
+    }
+
     const course = await prisma.course.update({
       where: { id },
       data: prismaData,
@@ -216,7 +250,7 @@ export const deleteCourse = asyncHandler(
 
     //verify the couser actually exists and belongs to the owner
     const course = await prisma.course.findFirst({
-      where: { id: instructorId },
+      where: { id, instructorId },
       include: { _count: { select: { enrollments: true } } },
     });
 
@@ -229,6 +263,11 @@ export const deleteCourse = asyncHandler(
     ///we prevent the deletion if course has enrollmenets
     if (course._count.enrollments > 0) {
       throw ApiError.badRequest("Cannot delete coursewith enrollments");
+    }
+
+    ///delete from cloudinary
+    if (course.thumbnailPublicId) {
+      await deleteMediaFromCloudinary(course.thumbnailPublicId);
     }
 
     await prisma.course.delete({ where: { id } });

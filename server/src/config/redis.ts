@@ -14,7 +14,7 @@ export const connectRedis = (): void => {
     isRedisEnabled = true;
 
     redisClient.on("connect", () => {
-      logger.info("✅ Redis connected");
+      logger.info("Redis connected");
     });
 
     redisClient.on("error", (err) => {
@@ -139,5 +139,3 @@ export default {
   isConnected: isRedisConnected,
   initialize: connectRedis,
 };
-
-// export default connectRedis;
