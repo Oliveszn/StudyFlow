@@ -15,6 +15,11 @@ interface MyJwtPayload extends JwtPayload {
   userId: string;
 }
 
+/**
+ * @route   POST /api/v1/auth/register
+ * @desc    Register a new user
+ * @access  Public
+ */
 export const registerUser = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -69,6 +74,11 @@ export const registerUser = asyncHandler(
   }
 );
 
+/**
+ * @route   POST /api/v1/auth/login
+ * @desc    Login user
+ * @access  Public
+ */
 export const loginUser = asyncHandler(async (req, res, next) => {
   try {
     logger.info("Login endpoint hit...");
@@ -113,6 +123,11 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   }
 });
 
+/**
+ * @route   POST /api/v1/auth/refresh-token
+ * @desc    Refresh JWT token
+ * @access  Private
+ */
 export const refreshToken = asyncHandler(async (req, res, next) => {
   try {
     logger.info("Refresh Token endpoint hit...");
@@ -161,6 +176,11 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
   }
 });
 
+/**
+ * @route   POST /api/v1/auth/logout
+ * @desc    Logout user (client should delete token)
+ * @access  Private
+ */
 export const logoutUser = asyncHandler(async (req, res, next) => {
   res.clearCookie("refreshToken", {
     httpOnly: true,
@@ -181,6 +201,11 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
     .json({ success: true, message: "User logged out successfully" });
 });
 
+/**
+ * @route   GET /api/v1/auth/me
+ * @desc    Get current user
+ * @access  Private
+ */
 export const getMe = asyncHandler(async (req, res, next) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user.id },

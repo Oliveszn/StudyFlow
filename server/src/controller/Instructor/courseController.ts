@@ -332,6 +332,10 @@ export const publishCourse = asyncHandler(
       include: { category: true },
     });
 
+    await redisService.del(`course:${updatedCourse.slug}`);
+    await redisService.del(`course:${updatedCourse.id}`);
+    await redisService.del(`course:${updatedCourse.slug}:curriculum`);
+
     res.status(200).json({
       success: true,
       message: "Course published successfully",
@@ -360,9 +364,9 @@ export const unpublishCourse = asyncHandler(
       include: { category: true },
     });
 
-    // Clear cache
     await redisService.del(`course:${updatedCourse.slug}`);
     await redisService.del(`course:${updatedCourse.id}`);
+    await redisService.del(`course:${updatedCourse.slug}:curriculum`);
 
     res.status(200).json({
       success: true,
