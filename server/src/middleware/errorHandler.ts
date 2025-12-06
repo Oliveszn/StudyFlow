@@ -28,7 +28,7 @@ const errorHandler = (
 
   // Log the error for debugging
 
-  logger.error("ERROR 💥:", {
+  logger.error("ERROR:", {
     timestamp: new Date().toISOString(),
     method: req?.method || "UNKNOWN",
     url: req?.originalUrl || "UNKNOWN",
@@ -37,9 +37,10 @@ const errorHandler = (
     error: {
       name: err.name || "Error",
       message: err.message || "Unknown error",
-      stack: err.stack || "No stack trace",
+      // stack: err.stack || "No stack trace",
       statusCode: err.statusCode || 500,
       code: err.code || null,
+      stack: process.env.NODE_ENV === "development" ? err.stack : "hidden",
     },
   });
 
@@ -56,7 +57,7 @@ const errorHandler = (
     error = ApiError.unauthorized("Token expired. Please log in again");
   }
 
-  // ✅ Prisma Error Handling
+  //Prisma Error Handling
   switch (err.code) {
     case "P2002": {
       // Unique constraint failed

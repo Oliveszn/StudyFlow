@@ -16,7 +16,7 @@ interface MyJwtPayload extends JwtPayload {
 }
 
 /**
- * @route   POST /api/v1/auth/register
+ * @route   POST /api/auth/register
  * @desc    Register a new user
  * @access  Public
  */
@@ -75,7 +75,7 @@ export const registerUser = asyncHandler(
 );
 
 /**
- * @route   POST /api/v1/auth/login
+ * @route   POST /api/auth/login
  * @desc    Login user
  * @access  Public
  */
@@ -102,6 +102,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     const accessToken = generateAccessToken(res, user.id, user.role);
     const refreshToken = generateRefreshToken(res, user.id, user.role);
 
+    logger.info("Login successful", user.id);
     res.status(200).json({
       success: true,
       message: "User logged in successfully",
@@ -124,7 +125,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * @route   POST /api/v1/auth/refresh-token
+ * @route   POST /api/auth/refresh-token
  * @desc    Refresh JWT token
  * @access  Private
  */
@@ -177,7 +178,7 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * @route   POST /api/v1/auth/logout
+ * @route   POST /api/auth/logout
  * @desc    Logout user (client should delete token)
  * @access  Private
  */
@@ -202,7 +203,7 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * @route   GET /api/v1/auth/me
+ * @route   GET /api/auth/me
  * @desc    Get current user
  * @access  Private
  */

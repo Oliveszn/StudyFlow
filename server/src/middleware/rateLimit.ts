@@ -7,7 +7,11 @@ import type { Request, Response, NextFunction } from "express";
 
 const redisClient = new Redis(process.env.REDIS_URL!);
 
-const createLimiter = (options: { windowMs: number; max: number }) =>
+const createLimiter = (options: {
+  windowMs: number;
+  max: number;
+  keyPrefix: string;
+}) =>
   rateLimit({
     store: new RedisStore({
       sendCommand: (...args: string[]): Promise<RedisReply> => {
@@ -15,6 +19,7 @@ const createLimiter = (options: { windowMs: number; max: number }) =>
           ...(args as [string, ...string[]])
         ) as Promise<RedisReply>;
       },
+      prefix: options.keyPrefix || "rl:",
     }),
     windowMs: options.windowMs,
     max: options.max,
@@ -24,16 +29,23 @@ const createLimiter = (options: { windowMs: number; max: number }) =>
       success: false,
       message: "Too many requests. Please try again later.",
     },
+
+    // keyGenerator: (req) => {
+    //    const ip = rateLimit.ipKeyGenerator(req, res);
+    //   return `${ip}-${options.keyPrefix}`;
+    // },
   });
 
 export const generalLimiter = createLimiter({
   windowMs: 60 * 1000,
   max: 100,
+  keyPrefix: "general",
 });
 
 export const authLimiter = createLimiter({
   windowMs: 60 * 1000,
   max: 5,
+  keyPrefix: "auth",
 });
 
 // ddos protection rate limiter using Redis as storage

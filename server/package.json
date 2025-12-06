@@ -36,11 +36,15 @@
     "quick-lru": "^7.3.0",
     "rate-limit-redis": "^4.3.0",
     "rate-limiter-flexible": "^8.3.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "tsc-alias": "^1.8.16",
     "winston": "^3.18.3",
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "prisma": "^6.19.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",

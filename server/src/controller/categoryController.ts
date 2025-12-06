@@ -3,12 +3,21 @@ import redisService from "../config/redis";
 import { Request, Response } from "express";
 import prisma from "../prisma";
 import { ApiError } from "../utils/error";
+import logger from "../utils/logger";
 
-///GET CATEGORY
+/**
+ * @route   GET /api/categories
+ * @desc    Get all categories
+ * @access  Public
+ */
 export const getCategories = asyncHandler(
   async (req: Request, res: Response) => {
+    logger.info("Fetching public categories");
+
     const cacheKey = "categories:all";
     const cachedData = await redisService.get(cacheKey);
+
+    logger.info("Categories served from cache");
 
     if (cachedData) {
       return res.status(200).json(JSON.parse(cachedData));
@@ -30,7 +39,7 @@ export const getCategories = asyncHandler(
       orderBy: { name: "asc" },
     });
 
-    // Format response with course count
+    ////Send response with courses count
     const formattedCategories = categories.map((cat) => ({
       id: cat.id,
       name: cat.name,
@@ -38,23 +47,31 @@ export const getCategories = asyncHandler(
       courseCount: cat._count.courses,
     }));
 
+    logger.info("Categories fetched from database", {
+      count: formattedCategories.length,
+    });
+
     const response = {
       success: true,
       data: formattedCategories,
     };
 
-    await redisService.set(cacheKey, JSON.stringify(response), 3600);
+    await redisService.set(cacheKey, JSON.stringify(response), 3600); //1hr
 
     res.status(200).json(response);
   }
 );
 
-///GET A SINGLE CATEGORY
+/**
+ * @route   GET /api/categories/:slug
+ * @desc    Get category by slug with details
+ * @access  Public
+ */
 export const getCategoryBySlug = asyncHandler(
   async (req: Request, res: Response) => {
     const { slug } = req.params;
+    logger.info("Fetching category by slug", { slug });
 
-    // Check cache
     const cacheKey = `category:${slug}`;
     const cachedData = await redisService.get(cacheKey);
 
@@ -79,6 +96,7 @@ export const getCategoryBySlug = asyncHandler(
     });
 
     if (!category) {
+      logger.warn("Category not found", { slug });
       throw ApiError.notFound("Category not found");
     }
 
@@ -92,14 +110,17 @@ export const getCategoryBySlug = asyncHandler(
       },
     };
 
-    // Cache for 1 hour
-    await redisService.set(cacheKey, JSON.stringify(response), 3600);
+    await redisService.set(cacheKey, JSON.stringify(response), 3600); ///1hr
 
     res.status(200).json(response);
   }
 );
 
-/////GET COURSES INSIDE CATEGORY
+/**
+ * @route   GET /api/categories/:slug/courses
+ * @desc    Get courses in a category
+ * @access  Public
+ */
 export const getCoursesByCategory = asyncHandler(
   async (req: Request, res: Response) => {
     const { slug } = req.params;
@@ -107,13 +128,20 @@ export const getCoursesByCategory = asyncHandler(
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    // Find category
+    logger.info("Fetching courses by category", {
+      slug,
+      page,
+      limit,
+      sort,
+    });
+
     const category = await prisma.category.findUnique({
       where: { slug },
       select: { id: true, name: true },
     });
 
     if (!category) {
+      logger.warn("Attempted access to missing category", { slug });
       throw ApiError.notFound("Category not found");
     }
 
@@ -139,7 +167,6 @@ export const getCoursesByCategory = asyncHandler(
         orderBy = { enrollmentCount: "desc" };
     }
 
-    // Check cache
     const cacheKey = `category:${slug}:courses:${page}:${limit}:${sort}`;
     const cachedData = await redisService.get(cacheKey);
 
@@ -176,6 +203,10 @@ export const getCoursesByCategory = asyncHandler(
         },
       }),
     ]);
+    logger.info("Courses fetched for category", {
+      slug,
+      total,
+    });
 
     const response = {
       success: true,
@@ -195,8 +226,7 @@ export const getCoursesByCategory = asyncHandler(
       },
     };
 
-    // Cache for 15 minutes
-    await redisService.set(cacheKey, JSON.stringify(response), 900);
+    await redisService.set(cacheKey, JSON.stringify(response), 900); //15mins
 
     res.status(200).json(response);
   }

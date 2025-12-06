@@ -7,13 +7,13 @@ import { editUser } from "../utils/validation";
 import argon2 from "argon2";
 
 /**
- * @route   GET /api/v1/users/profile
+ * @route   GET /api/users/profile
  * @desc    Get user profile
  * @access  Private
  */
 export const getProfile = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    logger.info("Profile endpoint hit");
+    logger.info("GET /users/profile hit", { userId: req.user?.id });
 
     const user = await prisma.user.findUnique({
       where: { id: req.user?.id },
@@ -27,28 +27,38 @@ export const getProfile = asyncHandler(
     });
 
     if (!user) {
+      logger.warn("User profile not found", { userId: req.user?.id });
       return next(ApiError.notFound("User not found"));
     }
+    logger.info("User profile fetched successfully", { userId: user.id });
     return res.status(200).json({ user });
   }
 );
 
 /**
- * @route   PUT /api/v1/users/profile
+ * @route   PUT /api/users/profile
  * @desc    Update user profile
  * @access  Private
  */
 export const editProfile = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    logger.info("Edit profile endpoint hit");
+    const userId = req.user!.id;
+    logger.info("PUT /users/edit hit", { userId });
     const request = editUser.parse(req.body);
 
     const { firstName, lastName, email } = request;
-    const userId = req.user!.id;
+
+    logger.debug("Edit profile payload", {
+      userId,
+      firstName,
+      lastName,
+      email,
+    });
 
     //check to see if the email belongs to another
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing && existing.id !== userId) {
+      logger.warn("Email already in use", { email, userId });
       return next(ApiError.badRequest("Email already in use"));
     }
 
@@ -68,6 +78,8 @@ export const editProfile = asyncHandler(
       },
     });
 
+    logger.info("User profile updated successfully", { userId });
+
     return res.status(200).json({
       success: true,
       message: "User updated successfully",
@@ -77,15 +89,14 @@ export const editProfile = asyncHandler(
 );
 
 /**
- * @route   GET /api/v1/users/:id/profile
+ * @route   GET /api/users/:id/profile
  * @desc    Get public instructor profile
  * @access  Public
  */
 export const getPublicInstructorProfile = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    logger.info("Public profile endpoint hit");
-
     const instructorId = req.params.id;
+    logger.info("GET /users/public-profile hit", { instructorId });
 
     const instructor = await prisma.user.findUnique({
       where: { id: instructorId },
@@ -104,9 +115,11 @@ export const getPublicInstructorProfile = asyncHandler(
     });
 
     if (!instructor) {
+      logger.warn("Public instructor not found", { instructorId });
       return next(ApiError.notFound("Instructor not found"));
     }
 
+    logger.info("Public instructor profile fetched", { instructorId });
     return res.status(200).json({
       success: true,
       data: instructor,
@@ -115,13 +128,14 @@ export const getPublicInstructorProfile = asyncHandler(
 );
 
 /**
- * @route   DELETE /api/v1/users/account
+ * @route   DELETE /api/users/account
  * @desc    Delete user account
  * @access  Private
  */
 export const deleteAccount = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
+    logger.info("DELETE /users/delete hit", { userId });
 
     ////check if user is an instructor with courses
     const courseCount = await prisma.course.count({
@@ -129,6 +143,11 @@ export const deleteAccount = asyncHandler(
     });
 
     if (courseCount > 0) {
+      logger.warn("User attempted delete with active courses", {
+        userId,
+        courseCount,
+      });
+
       throw ApiError.badRequest(
         "Cannot delete account with active courses. Please delete or transfer your courses first."
       );
@@ -140,6 +159,8 @@ export const deleteAccount = asyncHandler(
       data: { isActive: false },
     });
 
+    logger.info("User account soft-deleted", { userId });
+
     res.status(200).json({
       success: true,
       message: "Account deleted successfully",
@@ -148,13 +169,14 @@ export const deleteAccount = asyncHandler(
 );
 
 /**
- * @route   PATCH /api/v1/auth/change-password
+ * @route   PATCH /api/auth/change-password
  * @desc    Change password (when logged in)
  * @access  Private
  */
 export const changePassword = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
+    logger.info("PATCH /users/change-password hit", { userId });
     const { currentPassword, newPassword } = req.body;
 
     const user = await prisma.user.findUnique({
@@ -162,6 +184,7 @@ export const changePassword = asyncHandler(
     });
 
     if (!user) {
+      logger.warn("User not found during password change", { userId });
       throw ApiError.notFound("User not found");
     }
 
@@ -169,6 +192,7 @@ export const changePassword = asyncHandler(
     const isPasswordValid = await argon2.verify(user.password, currentPassword);
 
     if (!isPasswordValid) {
+      logger.warn("Invalid current password attempt", { userId });
       throw ApiError.unauthorized("Current password is incorrect");
     }
 
@@ -179,6 +203,8 @@ export const changePassword = asyncHandler(
       where: { id: userId },
       data: { password: hashedPassword },
     });
+
+    logger.info("Password changed successfully", { userId });
 
     res.status(200).json({
       success: true,
