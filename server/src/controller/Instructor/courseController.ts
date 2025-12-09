@@ -9,11 +9,25 @@ import {
   deleteMediaFromCloudinary,
   uploadMediaToCloudinary,
 } from "../../middleware/cloudinary";
+import logger from "../../utils/logger";
 
+/**
+ * @route   GET /api/v1/instructor/courses
+ * @desc    Get all courses for the authenticated instructor
+ * @access  Private (Instructor)
+ */
 export const getInstructorCourses = asyncHandler(
   async (req: Request, res: Response) => {
     const instructorId = req.user!.id;
     const { status, page = 1, limit = 10, search } = req.query;
+
+    logger.info("Fetching instructor courses", {
+      instructorId,
+      status,
+      page,
+      limit,
+      search,
+    });
 
     const skip = (Number(page) - 1) * Number(limit);
 
@@ -43,6 +57,12 @@ export const getInstructorCourses = asyncHandler(
       prisma.course.count({ where }),
     ]);
 
+    logger.info("Instructor courses fetched", {
+      instructorId,
+      returned: courses.length,
+      total,
+    });
+
     res.status(200).json({
       success: true,
       data: courses,
@@ -56,9 +76,15 @@ export const getInstructorCourses = asyncHandler(
   }
 );
 
+/**
+ * @route   POST /api/v1/instructor/courses
+ * @desc    Create a new course
+ * @access  Private (Instructor)
+ */
 export const createCourse = asyncHandler(
   async (req: Request, res: Response) => {
     const instructorId = req.user!.id;
+    logger.info("Create course request received", { instructorId });
 
     const request = createCourseSchema.parse(req.body);
     ////generate the slug from the title
@@ -69,6 +95,10 @@ export const createCourse = asyncHandler(
       where: { name: request.category },
     });
     if (!category) {
+      logger.warn("Invalid category during course creation", {
+        instructorId,
+        category: request.category,
+      });
       throw ApiError.notFound("Category not found");
     }
 
@@ -76,6 +106,7 @@ export const createCourse = asyncHandler(
     let thumbnailPublicId = null;
 
     if (req.file) {
+      logger.info("Uploading course thumbnail", { instructorId });
       const uploadResult: any = await uploadMediaToCloudinary(req.file);
 
       thumbnailUrl = uploadResult.secure_url;
@@ -116,6 +147,11 @@ export const createCourse = asyncHandler(
       },
     });
 
+    logger.info("Course created successfully", {
+      courseId: course.id,
+      instructorId,
+    });
+
     res.status(201).json({
       success: true,
       message: "Course created successfully",
@@ -124,10 +160,17 @@ export const createCourse = asyncHandler(
   }
 );
 
+/**
+ * @route   GET /api/v1/instructor/courses/:id
+ * @desc    Get course details by ID
+ * @access  Private (Instructor - own courses only)
+ */
 export const getCourseById = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const instructorId = req.user!.id;
+
+    logger.info("Fetching single course", { courseId: id, instructorId });
 
     const course = await prisma.course.findFirst({
       where: {
@@ -154,10 +197,16 @@ export const getCourseById = asyncHandler(
     });
 
     if (!course) {
+      logger.warn("Unauthorized course access attempt", {
+        courseId: id,
+        instructorId,
+      });
       throw ApiError.notFound(
         "Course not found or you do not have permission to access it"
       );
     }
+
+    logger.info("Course fetched successfully", { courseId: id });
 
     res.status(200).json({
       success: true,
@@ -166,11 +215,18 @@ export const getCourseById = asyncHandler(
   }
 );
 
+/**
+ * @route   PUT /api/v1/instructor/courses/:id
+ * @desc    Update course
+ * @access  Private (Instructor - own courses only)
+ */
 export const updateCourse = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const instructorId = req.user!.id;
     const updateData = updateCourseSchema.parse(req.body);
+
+    logger.info("Course fetched successfully", { courseId: id });
 
     /////check if course exists and belongs to owner
     const existingCourse = await prisma.course.findFirst({
@@ -178,6 +234,10 @@ export const updateCourse = asyncHandler(
     });
 
     if (!existingCourse) {
+      logger.warn("Unauthorized course update attempt", {
+        courseId: id,
+        instructorId,
+      });
       throw ApiError.notFound(
         "Course not found or you do not have permission to update it"
       );
@@ -188,6 +248,7 @@ export const updateCourse = asyncHandler(
     /////if the title is being updated we regenerate te slug
     if (updateData.title && updateData.title !== existingCourse.title) {
       newSlug = await generateUniqueSlug(updateData.title);
+      logger.info("Course slug regenerated", { courseId: id });
     }
 
     const prismaData: any = {
@@ -202,6 +263,10 @@ export const updateCourse = asyncHandler(
       });
 
       if (!category) {
+        logger.warn("Invalid category during course update", {
+          courseId: id,
+          category: updateData.category,
+        });
         throw ApiError.notFound("Category not found");
       }
       prismaData.categoryId = category.id;
@@ -210,6 +275,7 @@ export const updateCourse = asyncHandler(
     if (req.file) {
       if (existingCourse.thumbnailPublicId) {
         await deleteMediaFromCloudinary(existingCourse.thumbnailPublicId);
+        logger.info("Old thumbnail deleted", { courseId: id });
       }
 
       const uploadResult: any = await uploadMediaToCloudinary(req.file);
@@ -233,7 +299,10 @@ export const updateCourse = asyncHandler(
     if (course.isPublished) {
       await redisService.del(`course:${course.slug}`);
       await redisService.del(`course:${course.id}`);
+      logger.info("Course cache invalidated", { courseId: id });
     }
+
+    logger.info("Course updated successfully", { courseId: id });
 
     res.status(200).json({
       success: true,
@@ -243,10 +312,17 @@ export const updateCourse = asyncHandler(
   }
 );
 
+/**
+ * @route   DELETE /api/v1/instructor/courses/:id
+ * @desc    Delete course
+ * @access  Private (Instructor - own courses only)
+ */
 export const deleteCourse = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const instructorId = req.user!.id;
+
+    logger.info("Delete course request", { courseId: id, instructorId });
 
     //verify the couser actually exists and belongs to the owner
     const course = await prisma.course.findFirst({
@@ -255,6 +331,10 @@ export const deleteCourse = asyncHandler(
     });
 
     if (!course) {
+      logger.warn("Unauthorized delete attempt", {
+        courseId: id,
+        instructorId,
+      });
       throw ApiError.notFound(
         "Course not found or you do not have permission to delete it"
       );
@@ -262,18 +342,25 @@ export const deleteCourse = asyncHandler(
 
     ///we prevent the deletion if course has enrollmenets
     if (course._count.enrollments > 0) {
+      logger.warn("Delete blocked due to enrollments", {
+        courseId: id,
+        enrollments: course._count.enrollments,
+      });
       throw ApiError.badRequest("Cannot delete coursewith enrollments");
     }
 
     ///delete from cloudinary
     if (course.thumbnailPublicId) {
       await deleteMediaFromCloudinary(course.thumbnailPublicId);
+      logger.info("Deleted course thumbnail", { courseId: id });
     }
 
     await prisma.course.delete({ where: { id } });
 
     await redisService.del(`course:${course.slug}`);
     await redisService.del(`course:${course.id}`);
+
+    logger.info("Course deleted successfully", { courseId: id });
 
     res.status(200).json({
       success: true,
@@ -282,10 +369,17 @@ export const deleteCourse = asyncHandler(
   }
 );
 
+/**
+ * @route   PATCH /api/v1/instructor/courses/:id/publish
+ * @desc    Publish a course
+ * @access  Private (Instructor - own courses only)
+ */
 export const publishCourse = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const instructorId = req.user!.id;
+
+    logger.info("Publish course request", { courseId: id, instructorId });
 
     ///verify course and owner
     const course = await prisma.course.findFirst({
@@ -298,6 +392,10 @@ export const publishCourse = asyncHandler(
     });
 
     if (!course) {
+      logger.warn("Unauthorized publish attempt", {
+        courseId: id,
+        instructorId,
+      });
       throw ApiError.notFound("Course not found or you do not have permission");
     }
 
@@ -336,6 +434,8 @@ export const publishCourse = asyncHandler(
     await redisService.del(`course:${updatedCourse.id}`);
     await redisService.del(`course:${updatedCourse.slug}:curriculum`);
 
+    logger.info("Course published", { courseId: id });
+
     res.status(200).json({
       success: true,
       message: "Course published successfully",
@@ -344,10 +444,17 @@ export const publishCourse = asyncHandler(
   }
 );
 
+/**
+ * @route   PATCH /api/v1/instructor/courses/:id/unpublish
+ * @desc    Unpublish a course
+ * @access  Private (Instructor - own courses only)
+ */
 export const unpublishCourse = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const instructorId = req.user!.id;
+
+    logger.info("Unpublish course request", { courseId: id, instructorId });
 
     ///verify
     const course = await prisma.course.findFirst({
@@ -355,6 +462,10 @@ export const unpublishCourse = asyncHandler(
     });
 
     if (!course) {
+      logger.warn("Unauthorized unpublish attempt", {
+        courseId: id,
+        instructorId,
+      });
       throw ApiError.notFound("Course not found or you do not have permission");
     }
 
@@ -368,6 +479,8 @@ export const unpublishCourse = asyncHandler(
     await redisService.del(`course:${updatedCourse.id}`);
     await redisService.del(`course:${updatedCourse.slug}:curriculum`);
 
+    logger.info("Course unpublished", { courseId: id });
+
     res.status(200).json({
       success: true,
       message: "Course unpublished successfully",
@@ -376,10 +489,20 @@ export const unpublishCourse = asyncHandler(
   }
 );
 
+/**
+ * @route   GET /api/v1/instructor/courses/:id/analytics
+ * @desc    Get course analytics
+ * @access  Private (Instructor - own courses only)
+ */
 export const getCourseAnalytics = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const instructorId = req.user!.id;
+
+    logger.warn("Unauthorized unpublish attempt", {
+      courseId: id,
+      instructorId,
+    });
 
     //// veri
     const course = await prisma.course.findFirst({
@@ -387,6 +510,10 @@ export const getCourseAnalytics = asyncHandler(
     });
 
     if (!course) {
+      logger.warn("Unauthorized analytics access", {
+        courseId: id,
+        instructorId,
+      });
       throw ApiError.notFound("Course not found or you do not have permission");
     }
 
@@ -438,6 +565,12 @@ export const getCourseAnalytics = asyncHandler(
         take: 10,
       }),
     ]);
+
+    logger.info("Course analytics fetched", {
+      courseId: id,
+      totalEnrollments,
+      revenue: totalRevenue._sum.pricePaid || 0,
+    });
 
     res.status(200).json({
       success: true,

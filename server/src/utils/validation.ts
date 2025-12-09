@@ -49,14 +49,45 @@ export const editUser = z.object({
 export const createCourseSchema = z.object({
   title: z.string().min(10).max(200),
   subtitle: z.string().max(300).optional(),
-  description: z.string().min(50),
+  description: z.string().min(5),
   category: z.string(),
-  price: z.number().min(0).multipleOf(0.01),
-  discountPrice: z.number().min(0).multipleOf(0.01).optional(),
+  price: z.coerce.number().min(0).multipleOf(0.01),
+  discountPrice: z.coerce.number().min(0).multipleOf(0.01).optional(),
   language: z.string().default("en"),
-  requirements: z.array(z.string()).optional(),
-  whatYouWillLearn: z.array(z.string()).optional(),
-  // thumbnail: z.string().url().optional(),
+  /// had to modify requirements and whatlearn to accept strings and parse them to an array
+  requirements: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((str) => {
+        if (!str || str.trim() === "") return [];
+        try {
+          return JSON.parse(str);
+        } catch {
+          return str
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }),
+    ])
+    .optional(),
+  whatYouWillLearn: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((str) => {
+        if (!str || str.trim() === "") return [];
+        try {
+          return JSON.parse(str);
+        } catch {
+          return str
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }),
+    ])
+    .optional(),
+  thumbnail: z.string().url().optional(),
   // previewVideo: z.string().url().optional(),
 });
 
@@ -69,9 +100,39 @@ export const updateCourseSchema = z.object({
   discountPrice: z.number().min(0).multipleOf(0.01).optional(),
   language: z.string().optional(),
   duration: z.number().min(0).optional(),
-  requirements: z.array(z.string()).optional(),
-  whatYouWillLearn: z.array(z.string()).optional(),
-  // thumbnail: z.string().url().optional(),
+  requirements: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((str) => {
+        if (!str || str.trim() === "") return [];
+        try {
+          return JSON.parse(str);
+        } catch {
+          return str
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }),
+    ])
+    .optional(),
+  whatYouWillLearn: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((str) => {
+        if (!str || str.trim() === "") return [];
+        try {
+          return JSON.parse(str);
+        } catch {
+          return str
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }),
+    ])
+    .optional(),
+  thumbnail: z.string().url().optional(),
   // previewVideo: z.string().url().optional(),
 });
 
@@ -106,22 +167,33 @@ export const createLessonSchema = z.object({
   title: z.string().min(3).max(200),
   description: z.string().max(2000).optional().nullable().or(z.literal("")),
   type: z.enum(["VIDEO", "ARTICLE"]),
-  // videoUrl: z.string().url().optional(),
-  // videoProvider: z.string().optional(),
-  // videoDuration: z.number().int().min(0).optional(),
+  videoUrl: z.string().url().optional(),
+  videoDuration: z.coerce.number().int().min(0).optional(),
   articleContent: z.string().optional(),
-  isFree: z.boolean().optional(),
+  isFree: z
+    .union([
+      z.boolean(),
+      z.string().transform((val) => val === "true" || val === "1"),
+    ])
+    .optional()
+    .default(false),
+  isPublished: z.boolean().optional(),
 });
 
 export const updateLessonSchema = z.object({
   title: z.string().min(3).max(200).optional(),
   description: z.string().max(2000).optional().nullable().or(z.literal("")),
   type: z.enum(["VIDEO", "ARTICLE"]),
-  // videoUrl: z.string().url().optional().nullable().or(z.literal("")),
-  // videoProvider: z.string().optional().nullable().or(z.literal("")),
-  // videoDuration: z.number().int().min(0).optional().nullable(),
+  videoUrl: z.string().url().optional().nullable().or(z.literal("")),
+  videoDuration: z.coerce.number().int().min(0).optional().nullable(),
   articleContent: z.string().optional().nullable().or(z.literal("")),
-  isFree: z.boolean().optional(),
+  isFree: z
+    .union([
+      z.boolean(),
+      z.string().transform((val) => val === "true" || val === "1"),
+    ])
+    .optional()
+    .default(false),
   isPublished: z.boolean().optional(),
 });
 

@@ -5,6 +5,11 @@ import prisma from "../prisma";
 import { ApiError } from "../utils/error";
 import { Prisma } from "@prisma/client";
 
+/**
+ * @route   GET /api/v1/courses
+ * @desc    Get all published courses with filters
+ * @access  Public
+ */
 export const getCourses = asyncHandler(async (req: Request, res: Response) => {
   const {
     page = 1,
@@ -128,6 +133,11 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(response);
 });
 
+/**
+ * @route   GET /api/v1/courses/:slug
+ * @desc    Get course details by slug
+ * @access  Public
+ */
 export const getCourseBySlug = asyncHandler(
   async (req: Request, res: Response) => {
     const { slug } = req.params;
@@ -194,7 +204,11 @@ export const getCourseBySlug = asyncHandler(
   }
 );
 
-///THIS IS FOR GETTING THE SECIONS AND LESSONS FOR A COUSRE
+/**
+ * @route   GET /api/v1/courses/:slug/curriculum
+ * @desc    Get course curriculum (sections and lessons)
+ * @access  Public
+ */
 export const getCourseCurriculum = asyncHandler(
   async (req: Request, res: Response) => {
     const { slug } = req.params;
@@ -288,6 +302,11 @@ export const getCourseCurriculum = asyncHandler(
   }
 );
 
+/**
+ * @route   GET /api/v1/courses/:slug/reviews
+ * @desc    Get course reviews
+ * @access  Public
+ */
 export const getCourseReviews = asyncHandler(
   async (req: Request, res: Response) => {
     const { slug } = req.params;
@@ -369,6 +388,11 @@ export const getCourseReviews = asyncHandler(
   }
 );
 
+/**
+ * @route   GET /api/v1/courses/featured
+ * @desc    Get featured courses
+ * @access  Public
+ */
 export const getFeaturedCourses = asyncHandler(
   async (req: Request, res: Response) => {
     const { limit = 6 } = req.query;
@@ -414,6 +438,11 @@ export const getFeaturedCourses = asyncHandler(
   }
 );
 
+/**
+ * @route   GET /api/v1/courses/trending
+ * @desc    Get trending courses (most enrollments in last 30 days)
+ * @access  Public
+ */
 export const getTrendingCourses = asyncHandler(
   async (req: Request, res: Response) => {
     const { limit = 6 } = req.query;

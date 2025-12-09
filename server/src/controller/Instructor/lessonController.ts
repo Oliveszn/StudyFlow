@@ -13,11 +13,24 @@ import {
   deleteMediaFromCloudinary,
   uploadMediaToCloudinary,
 } from "../../middleware/cloudinary";
+import logger from "../../utils/logger";
 
 export const createLesson = asyncHandler(
   async (req: Request, res: Response) => {
     const { sectionId } = req.params;
     const instructorId = req.user!.id;
+
+    console.log("req.body:", req.body);
+    console.log("req.file:", req.file);
+
+    logger.info("Create lesson ", {
+      sectionId: req.params.sectionId,
+      instructorId: req.user?.id,
+    });
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+      throw ApiError.badRequest("Request body is empty");
+    }
 
     const request = createLessonSchema.parse(req.body);
 
@@ -37,12 +50,17 @@ export const createLesson = asyncHandler(
     });
 
     if (!section) {
+      logger.warn("Create lesson failed, Section not found", {
+        sectionId,
+        instructorId,
+      });
       throw ApiError.notFound(
         "Section not found or you do not have permission"
       );
     }
 
     if (request.type === "ARTICLE" && !request.articleContent) {
+      logger.warn("Article content missing", { sectionId });
       throw ApiError.badRequest(
         "Article content is required for article lessons"
       );
@@ -53,6 +71,7 @@ export const createLesson = asyncHandler(
     let videoDuration = null;
 
     if (request.type === "VIDEO") {
+      logger.warn("Video file missing", { sectionId });
       if (!req.file) {
         throw ApiError.badRequest("Video file is required");
       }
@@ -91,6 +110,12 @@ export const createLesson = asyncHandler(
 
     await redisService.del(`course:${section.course.slug}:curriculum`);
 
+    logger.info("Lesson created", {
+      lessonId: lesson.id,
+      sectionId,
+      instructorId,
+    });
+
     res.status(201).json({
       success: true,
       message: "Lesson created successfully",
@@ -102,6 +127,8 @@ export const createLesson = asyncHandler(
 export const getLesson = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const instructorId = req.user!.id;
+
+  logger.info("Get lesson ", { lessonId: id, instructorId });
 
   const lesson = await prisma.lesson.findFirst({
     where: {
@@ -128,8 +155,11 @@ export const getLesson = asyncHandler(async (req: Request, res: Response) => {
   });
 
   if (!lesson) {
+    logger.warn("Lesson not found", { lessonId: id, instructorId });
     throw ApiError.notFound("Lesson not found or you do not have permission");
   }
+
+  logger.info("Lesson fetched succesfully", { lessonId: id });
 
   res.status(200).json({
     success: true,
@@ -141,6 +171,8 @@ export const updateLesson = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const instructorId = req.user!.id;
+
+    logger.info("Update lesson", { lessonId: id, instructorId });
 
     const updateData = updateLessonSchema.parse(req.body);
 
@@ -163,6 +195,7 @@ export const updateLesson = asyncHandler(
     });
 
     if (!existingLesson) {
+      logger.warn("Lesson not found", { lessonId: id, instructorId });
       throw ApiError.notFound("Lesson not found or you do not have permission");
     }
 
@@ -171,6 +204,7 @@ export const updateLesson = asyncHandler(
     ///when switching type to video and no video uploaded
     if (updateData.type === "VIDEO" && existingLesson.type !== "VIDEO") {
       if (!req.file) {
+        logger.warn("No video provided", { lessonId: id });
         throw ApiError.badRequest(
           "Video file is required when changing to video lesson"
         );
@@ -219,6 +253,8 @@ export const updateLesson = asyncHandler(
       `course:${existingLesson.section.course.slug}:curriculum`
     );
 
+    logger.info("Lesson updated", { lessonId: id });
+
     res.status(200).json({
       success: true,
       message: "Lesson updated successfully",
@@ -231,6 +267,8 @@ export const deleteLesson = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const instructorId = req.user!.id;
+
+    logger.warn("Delete Lesson", { lessonId: id, instructorId });
 
     ////verify te section exists and it belongs to the instructor's cousre
     const lesson = await prisma.lesson.findFirst({
@@ -254,6 +292,7 @@ export const deleteLesson = asyncHandler(
     });
 
     if (!lesson) {
+      logger.warn("Lesson not found", { lessonId: id });
       throw ApiError.notFound("Lesson not found or you do not have permission");
     }
 
@@ -261,10 +300,9 @@ export const deleteLesson = asyncHandler(
       await deleteMediaFromCloudinary(lesson.videoPublicId);
     }
 
-    // Delete lesson
     await prisma.lesson.delete({ where: { id } });
 
-    // Reorder remaining lessons in the section
+    ///Reorder the remaining lesson in the sect
     const remainingLessons = await prisma.lesson.findMany({
       where: {
         sectionId: lesson.sectionId,
@@ -273,7 +311,7 @@ export const deleteLesson = asyncHandler(
       orderBy: { order: "asc" },
     });
 
-    // Update order for remaining lessons
+    ///update remaining lesson order
     for (const [index, les] of remainingLessons.entries()) {
       await prisma.lesson.update({
         where: { id: les.id },
@@ -282,6 +320,8 @@ export const deleteLesson = asyncHandler(
     }
 
     await redisService.del(`course:${lesson.section.course.slug}:curriculum`);
+
+    logger.warn("Lesson deleted", { lessonId: id });
 
     res.status(200).json({
       success: true,
@@ -295,6 +335,7 @@ export const reorderLessons = asyncHandler(
     const { sectionId } = req.params;
     const instructorId = req.user!.id;
     //   const { lessonOrders } = req.body;
+    logger.info("Reorder lessons", { sectionId, instructorId });
     const request = reorderLessonSchema.parse(req.body);
 
     const section = await prisma.section.findFirst({
@@ -312,12 +353,13 @@ export const reorderLessons = asyncHandler(
     });
 
     if (!section) {
+      logger.warn("Reorder section not found", { sectionId });
       throw ApiError.notFound(
         "Section not found or you do not have permission"
       );
     }
 
-    // Verify all lessons belong to this section
+    ///Check if all lesons belong to the section
     const lessonIds = request.lessonOrders.map((item) => item.lessonId);
     const lessons = await prisma.lesson.findMany({
       where: {
@@ -342,13 +384,15 @@ export const reorderLessons = asyncHandler(
       )
     );
 
-    // Get updated lessons
+    ////Get the updated lessons
     const updatedLessons = await prisma.lesson.findMany({
       where: { sectionId },
       orderBy: { order: "asc" },
     });
 
     await redisService.del(`course:${section.course.slug}:curriculum`);
+
+    logger.info("LESSONS_REORDERED", { sectionId });
 
     res.status(200).json({
       success: true,
@@ -416,6 +460,7 @@ export const addAttachment = asyncHandler(
     const { id } = req.params;
     const instructorId = req.user!.id;
     //   const { name, url, size } = req.body;
+    logger.info("Add attachemnt", { instructorId });
     const request = addAttachmentSchema.parse(req.body);
 
     const lesson = await prisma.lesson.findFirst({
@@ -442,10 +487,10 @@ export const addAttachment = asyncHandler(
       throw ApiError.notFound("Lesson not found or you do not have permission");
     }
 
-    // Get existing attachments
+    ////Get exisitng attachments
     const existingAttachments = (lesson.attachments as any[]) || [];
 
-    // Create new attachment with ID
+    ////Create a new attachment with id
     const newAttachment = {
       id: `att_${Date.now()}`,
       name: request.name,
@@ -454,17 +499,20 @@ export const addAttachment = asyncHandler(
       addedAt: new Date().toISOString(),
     };
 
-    // Add new attachment
+    ///Add a new attachment
     const updatedAttachments = [...existingAttachments, newAttachment];
 
-    // Update lesson
     const updatedLesson = await prisma.lesson.update({
       where: { id },
       data: { attachments: updatedAttachments },
     });
 
-    // Clear course curriculum cache
     await redisService.del(`course:${lesson.section.course.slug}:curriculum`);
+
+    logger.info("Attachment added", {
+      lessonId: id,
+      attachment: newAttachment,
+    });
 
     res.status(200).json({
       success: true,
@@ -481,7 +529,7 @@ export const deleteAttachment = asyncHandler(
   async (req: Request, res: Response) => {
     const { id, attachmentId } = req.params;
     const instructorId = req.user!.id;
-
+    logger.info("Delete attachemnt", { instructorId });
     const lesson = await prisma.lesson.findFirst({
       where: {
         id,
@@ -506,10 +554,10 @@ export const deleteAttachment = asyncHandler(
       throw ApiError.notFound("Lesson not found or you do not have permission");
     }
 
-    // Get existing attachments
+    ///Get the existing attachments
     const existingAttachments = (lesson.attachments as any[]) || [];
 
-    // Find and remove attachment
+    ////Find and remove attachments
     const updatedAttachments = existingAttachments.filter(
       (att: any) => att.id !== attachmentId
     );
@@ -518,14 +566,15 @@ export const deleteAttachment = asyncHandler(
       throw ApiError.notFound("Attachment not found");
     }
 
-    // Update lesson
+    ////Update Lesson
     await prisma.lesson.update({
       where: { id },
       data: { attachments: updatedAttachments },
     });
 
-    // Clear course curriculum cache
     await redisService.del(`course:${lesson.section.course.slug}:curriculum`);
+
+    logger.warn("Attachement deleted", { lessonId: id, attachmentId });
 
     res.status(200).json({
       success: true,

@@ -10,7 +10,7 @@ export const swaggerOptions: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: "http://localhost:5000/api", // change if different
+        url: "http://localhost:5000/api",
         description: "Development Server",
       },
     ],
@@ -30,7 +30,6 @@ export const swaggerOptions: swaggerJsdoc.Options = {
     ],
   },
 
-  // 👇 where swagger should scan for docs
   apis: ["./src/routes/**/*.ts"],
 };
 

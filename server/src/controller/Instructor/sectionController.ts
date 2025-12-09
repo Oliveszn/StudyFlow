@@ -8,11 +8,15 @@ import {
   reorderSectionSchema,
   updateSectionSchema,
 } from "../../utils/validation";
+import logger from "../../utils/logger";
 
 export const createSection = asyncHandler(
   async (req: Request, res: Response) => {
     const { courseId } = req.params;
     const instructorId = req.user!.id;
+
+    logger.info("Create section request received", { instructorId, courseId });
+
     const request = createSectionSchema.parse(req.body);
 
     /////verify the course and it elongs to the owner
@@ -24,6 +28,10 @@ export const createSection = asyncHandler(
     });
 
     if (!course) {
+      logger.warn("Create section failed: course not found or unauthorized", {
+        instructorId,
+        courseId,
+      });
       throw ApiError.notFound("Course not found or you do not have permission");
     }
 
@@ -52,6 +60,12 @@ export const createSection = asyncHandler(
 
     await redisService.del(`course:${course.slug}:curriculum`);
 
+    logger.info("Section created successfully", {
+      sectionId: section.id,
+      courseId,
+      instructorId,
+    });
+
     res.status(201).json({
       success: true,
       message: "Section created successfully",
@@ -63,6 +77,11 @@ export const createSection = asyncHandler(
 export const getSection = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const instructorId = req.user!.id;
+
+  logger.info("Fetch section request received", {
+    sectionId: id,
+    instructorId,
+  });
 
   const section = await prisma.section.findFirst({
     where: {
@@ -90,8 +109,17 @@ export const getSection = asyncHandler(async (req: Request, res: Response) => {
   });
 
   if (!section) {
+    logger.warn("Fetch section failed: not found or unauthorized", {
+      sectionId: id,
+      instructorId,
+    });
     throw ApiError.notFound("Section not found or you do not have permission");
   }
+
+  logger.info("Section fetched successfully", {
+    sectionId: section.id,
+    courseId: section.courseId,
+  });
 
   res.status(200).json({
     success: true,
@@ -103,6 +131,12 @@ export const updateSection = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const instructorId = req.user!.id;
+
+    logger.info("Update section request received", {
+      sectionId: id,
+      instructorId,
+    });
+
     const request = updateSectionSchema.parse(req.body);
 
     /////verify the course and it elongs to the owner
@@ -121,6 +155,10 @@ export const updateSection = asyncHandler(
     });
 
     if (!existingSection) {
+      logger.warn("Update section failed: section not found or unauthorized", {
+        sectionId: id,
+        instructorId,
+      });
       throw ApiError.notFound(
         "Section not found or you do not have permission"
       );
@@ -141,6 +179,11 @@ export const updateSection = asyncHandler(
 
     await redisService.del(`course:${existingSection.course.slug}:curriculum`);
 
+    logger.info("Section updated successfully", {
+      sectionId: id,
+      instructorId,
+    });
+
     res.status(200).json({
       success: true,
       message: "Section updated successfully",
@@ -153,6 +196,11 @@ export const deleteSection = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const instructorId = req.user!.id;
+
+    logger.info("Delete section request received", {
+      sectionId: id,
+      instructorId,
+    });
 
     /////verify the course and it elongs to the owner
     const section = await prisma.section.findFirst({
@@ -173,6 +221,10 @@ export const deleteSection = asyncHandler(
     });
 
     if (!section) {
+      logger.warn("Delete section failed: not found or unauthorized", {
+        sectionId: id,
+        instructorId,
+      });
       throw ApiError.notFound(
         "Section not found or you do not have permission"
       );
@@ -180,6 +232,10 @@ export const deleteSection = asyncHandler(
 
     ///verify there are lessons present
     if (section._count.lessons > 0) {
+      logger.warn("Delete section blocked: section has lessons", {
+        sectionId: id,
+        lessonCount: section._count.lessons,
+      });
       throw ApiError.badRequest(
         "Cannot delete section with lessons. Delete lessons first."
       );
@@ -207,6 +263,11 @@ export const deleteSection = asyncHandler(
 
     await redisService.del(`course:${section.course.slug}:curriculum`);
 
+    logger.info("Section deleted successfully", {
+      sectionId: id,
+      instructorId,
+    });
+
     res.status(200).json({
       success: true,
       message: "Section deleted successfully",
@@ -218,6 +279,11 @@ export const reorderSections = asyncHandler(
   async (req: Request, res: Response) => {
     const { courseId } = req.params;
     const instructorId = req.user!.id;
+
+    logger.info("Reorder sections request received", {
+      courseId,
+      instructorId,
+    });
     // const { sectionOrders } = req.body;
     const request = reorderSectionSchema.parse(req.body);
 
@@ -230,6 +296,10 @@ export const reorderSections = asyncHandler(
     });
 
     if (!course) {
+      logger.warn("Reorder sections failed: course not found or unauthorized", {
+        courseId,
+        instructorId,
+      });
       throw ApiError.notFound("Course not found or you do not have permission");
     }
 
@@ -243,6 +313,10 @@ export const reorderSections = asyncHandler(
     });
 
     if (sections.length !== sectionIds.length) {
+      logger.warn("Reorder sections failed: invalid section IDs", {
+        courseId,
+        sectionIds,
+      });
       throw ApiError.badRequest(
         "One or more sections not found in this course"
       );
@@ -270,6 +344,11 @@ export const reorderSections = asyncHandler(
     });
 
     await redisService.del(`course:${course.slug}:curriculum`);
+
+    logger.info("Sections reordered successfully", {
+      courseId,
+      instructorId,
+    });
 
     res.status(200).json({
       success: true,
