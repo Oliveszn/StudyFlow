@@ -41,6 +41,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /**/
+  --color-white: var(--white);
 }
 
 :root {
@@ -76,6 +79,9 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /**/
+  --white: oklch(1 0 0);
 }
 
 .dark {
@@ -119,4 +125,18 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* NAVBAR */
+.st-header {
+  box-shadow: 0 2px 4px
+      color-mix(in oklch, oklch(27.54% 0.1638 265.98deg) 8%, transparent),
+    0 4px 12px
+      color-mix(in oklch, oklch(27.54% 0.1638 265.98deg) 8%, transparent);
+  font-size: 1.4rem;
+  /* block-size: 7.2rem; */
+  /* padding-block: 0; */
+  /* padding-inline: 2.4rem; */
+  position: relative;
+  z-index: 1010;
 }
