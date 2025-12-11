@@ -43,7 +43,10 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   /**/
-  --color-white: var(--white);
+  --color-main: var(--main);
+  --color-main-primary: var(--main-primary);
+  --color-main-foreground: var(--main-foreground);
+  --color-text-primary: var(--text-primary);
 }
 
 :root {
@@ -81,7 +84,10 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /**/
-  --white: oklch(1 0 0);
+  --main: oklch(48.41% 0.2342 293.93deg);
+  --main-primary: #f3e8ff;
+  --main-foreground: #8710d8;
+  --text-primary: oklch(29.74% 0.0362 281.74deg);
 }
 
 .dark {
@@ -133,10 +139,10 @@
       color-mix(in oklch, oklch(27.54% 0.1638 265.98deg) 8%, transparent),
     0 4px 12px
       color-mix(in oklch, oklch(27.54% 0.1638 265.98deg) 8%, transparent);
-  font-size: 1.4rem;
-  /* block-size: 7.2rem; */
-  /* padding-block: 0; */
-  /* padding-inline: 2.4rem; */
-  position: relative;
-  z-index: 1010;
+}
+
+/* SEARCH  */
+.search-bar {
+  border: 1px solid oklch(67.22% 0.0355 279.77deg);
+  border-radius: 100rem;
 }
