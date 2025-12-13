@@ -8,8 +8,8 @@ export const plans = [
   {
     title: "Personal Plan",
     subTitle: "For you",
-    people: "individual",
-    price: "₦7,500",
+    people: "Individual",
+    price: "Starting at ₦7,500 per month",
     billing: "Billed monthly or annually. Cancel anytime.",
     benefits: [
       "Access to 26,000+ top courses",
@@ -27,7 +27,7 @@ export const plans = [
     title: "Team plan",
     subTitle: "For your team",
     people: "2 to 50 people",
-    price: "₦18,000",
+    price: "₦18,000 a month per user",
     billing: "Billed annually. Cancel anytime",
     benefits: [
       "Access to 13,000+ top courses",
@@ -61,7 +61,7 @@ export const plans = [
       "Strategic implementation services with add-on",
     ],
     cta: {
-      text: "request a demo",
+      text: "Request a demo",
       href: "/explore",
     },
   },

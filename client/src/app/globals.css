@@ -47,6 +47,7 @@
   --color-main-primary: var(--main-primary);
   --color-main-foreground: var(--main-foreground);
   --color-text-primary: var(--text-primary);
+  --color-gray: var(--gray);
 }
 
 :root {
@@ -88,6 +89,7 @@
   --main-primary: #f3e8ff;
   --main-foreground: #8710d8;
   --text-primary: oklch(29.74% 0.0362 281.74deg);
+  --gray: oklch(0.9759 0.0029 264.54);
 }
 
 .dark {
