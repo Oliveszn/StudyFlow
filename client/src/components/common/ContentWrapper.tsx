@@ -6,7 +6,7 @@ interface ContentWrapperProps {
 
 export default function ContentWrapper({ children }: ContentWrapperProps) {
   return (
-    <div className="px-6 sm:px-8 lg:px-10 py-16">
+    <div className="px-6 sm:px-8 lg:px-10 py-10">
       <div className="max-w-7xl mx-auto ">{children}</div>
     </div>
   );
