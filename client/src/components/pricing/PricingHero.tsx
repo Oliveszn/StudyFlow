@@ -12,7 +12,7 @@ export default function PricingHero() {
     setOpenIndex(openIndex === index ? null : index);
   };
   return (
-    <section>
+    <section className="">
       <div className="flex flex-col items-center justify-center mb-10 lg:mb-16">
         <h1 className="text-[clamp(2.0rem,calc(2.0rem+(4.6-2.0)*((100vw-36rem)/(144-36))),4.6rem)] font-semibold leading-normal text-text-primary whitespace-nowrap text-center">
           {title}

@@ -102,7 +102,15 @@ export const planComparisonConfig = {
           availability: {
             personal: true,
             team: true,
-            enterprise: false,
+            enterprise: true,
+          },
+        },
+        {
+          name: "Mobile app access",
+          availability: {
+            personal: true,
+            team: true,
+            enterprise: true,
           },
         },
       ],
@@ -132,7 +140,7 @@ export const planComparisonConfig = {
           name: "Custom learning paths, courses, and user groups",
           availability: {
             personal: false,
-            team: true,
+            team: false,
             enterprise: true,
           },
         },
@@ -140,7 +148,15 @@ export const planComparisonConfig = {
           name: "User activity, learning trends, and benchmark insights",
           availability: {
             personal: false,
-            team: true,
+            team: false,
+            enterprise: true,
+          },
+        },
+        {
+          name: "Interation capabilities",
+          availability: {
+            personal: false,
+            team: false,
             enterprise: true,
           },
         },

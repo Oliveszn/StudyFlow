@@ -2,7 +2,6 @@ import { footerConfig, socialIcons } from "@/config/footer";
 import Link from "next/link";
 
 export default function Footer() {
-  // const {footerConfig} = footerConfig
   return (
     <footer className="bg-gray-900 text-gray-300 mt-auto px-6 sm:px-8 lg:px-10">
       <div className="w-full mx-auto max-w-7xl py-8 md:py-10 lg:py-16">
