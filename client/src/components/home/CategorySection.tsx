@@ -55,11 +55,6 @@ export default function CategorySection() {
     setCurrentIndex((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
-  //   const getCurrentCategories = () => {
-  //     const start = currentIndex * itemsPerPage;
-  //     const end = start + itemsPerPage;
-  //     return categories.slice(start, end);
-  //   };
   return (
     <section className="w-full px-4 sm:px-6 lg:px-8 py-12 max-w-7xl mx-auto">
       <div className="flex flex-col lg:flex-row gap-8 items-start">

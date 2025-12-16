@@ -1,7 +1,7 @@
 import ContentWrapper from "@/components/common/ContentWrapper";
 import CategorySection from "@/components/home/CategorySection";
 import HeroSection from "@/components/home/HeroSection";
-import Image from "next/image";
+import TrendingSection from "@/components/home/TrendingSection";
 
 export default function Home() {
   return (
@@ -9,6 +9,7 @@ export default function Home() {
       <ContentWrapper>
         <HeroSection />
         <CategorySection />
+        <TrendingSection />
       </ContentWrapper>
     </main>
   );
