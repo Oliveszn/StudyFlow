@@ -46,6 +46,7 @@ export default function HeroSection() {
           alt="Hero Image"
           fill
           className="object-cover rounded-2xl"
+          loading="eager"
         />
 
         <div className="absolute inset-0 flex items-start rounded-2xl bg-black/20">

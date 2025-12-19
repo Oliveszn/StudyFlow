@@ -5,8 +5,9 @@ import { Label } from "@/components/ui/label";
 import { useLogin } from "@/hooks/endpoints/useAuth";
 import { loginSchema, LoginSchema } from "@/utils/validationSchema";
 import { useFormik } from "formik";
-import { Aperture, KeyRound, LockOpen, Mail } from "lucide-react";
+import { Eye, EyeOff, KeyRound, LockOpen, Mail } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 
 const INITIAL_VALUES: LoginSchema = {
@@ -16,6 +17,7 @@ const INITIAL_VALUES: LoginSchema = {
 
 const Login = () => {
   const { mutate: login, isPending } = useLogin();
+  const [showPassword, setShowPassword] = useState(false);
   const formik = useFormik<LoginSchema>({
     initialValues: INITIAL_VALUES,
     validationSchema: toFormikValidationSchema(loginSchema),
@@ -25,7 +27,6 @@ const Login = () => {
     },
   });
 
-  // const login = useLogin();
   const handleSubmit = async (data: any) => {
     login(data);
   };
@@ -51,7 +52,7 @@ const Login = () => {
           <Label htmlFor="email" className="">
             Email
           </Label>
-          <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-blue-500">
+          <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-main">
             <Mail className="mx-3 text-gray-400 size-5" />
             <Input
               id="email"
@@ -81,11 +82,11 @@ const Login = () => {
           <Label htmlFor="password" className="">
             Password
           </Label>
-          <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-blue-500">
+          <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-main relative">
             <KeyRound className="mx-3 text-gray-400 size-5" />
             <Input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Enter your password"
               className="border-0 focus-visible:ring-0 py-4"
@@ -97,6 +98,17 @@ const Login = () => {
                 getFieldError("password") ? "password-error" : undefined
               }
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </button>
           </div>
 
           {getFieldError("password") && (
@@ -117,7 +129,7 @@ const Login = () => {
           className={`w-full text-white transition-colors ${
             isPending
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
+              : "bg-main hover:bg-main-foreground cursor-pointer"
           }`}
         >
           {isPending ? (
@@ -131,22 +143,6 @@ const Login = () => {
               Sign In
             </div>
           )}
-        </Button>
-
-        {/* OR divider */}
-        <div className="flex items-center gap-4">
-          <div className="flex-1 h-px bg-gray-300"></div>
-          <span className="text-gray-500 text-sm">or</span>
-          <div className="flex-1 h-px bg-gray-300"></div>
-        </div>
-
-        {/* Sign in with Google */}
-        <Button
-          type="button"
-          className="w-full flex items-center gap-2 bg-[#EF4444] hover:bg-red-500"
-        >
-          <Aperture className="size-5 " />
-          Sign in with Google
         </Button>
       </form>
 

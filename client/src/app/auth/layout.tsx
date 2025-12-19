@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Auth | StagePass",
+  title: "Auth | StudyFlow",
   description: "Login or register to continue",
 };
 

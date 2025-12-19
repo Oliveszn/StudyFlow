@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFormik } from "formik";
-import { CircleAlert, LockOpen } from "lucide-react";
+import { CircleAlert, Eye, EyeOff, LockOpen } from "lucide-react";
 import Link from "next/link";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { useRegister } from "@/hooks/endpoints/useAuth";
 import { registerSchema, RegisterSchema } from "@/utils/validationSchema";
+import { useState } from "react";
 
 const INITIAL_VALUES: RegisterSchema = {
   firstName: "",
@@ -25,6 +26,7 @@ const Register = () => {
     },
   });
   const { mutate: register, isPending } = useRegister();
+  const [showPassword, setShowPassword] = useState(false);
   const handleSubmit = async (data: RegisterSchema) => {
     register(data);
   };
@@ -51,7 +53,7 @@ const Register = () => {
             <Label htmlFor="firstName" className="">
               First Name
             </Label>
-            <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-blue-500">
+            <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-main">
               <Input
                 id="firstName"
                 name="firstName"
@@ -83,7 +85,7 @@ const Register = () => {
             <Label htmlFor="lastName" className="">
               Last Name
             </Label>
-            <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-blue-500">
+            <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-main">
               <Input
                 id="lastName"
                 type="text"
@@ -111,18 +113,13 @@ const Register = () => {
             )}
           </div>
         </div>
-        <p className="text-xs flex items-center gap-4 font-medium text-gray-500">
-          <CircleAlert className="size-7" />
-          Your name should be your legal name, because this will be matched with
-          your bank account for payouts.
-        </p>
 
         {/* Email */}
         <div className="space-y-2">
           <Label htmlFor="email" className="">
             Email
           </Label>
-          <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-blue-500">
+          <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-main">
             <Input
               id="email"
               type="email"
@@ -151,10 +148,10 @@ const Register = () => {
           <Label htmlFor="password" className="">
             Password
           </Label>
-          <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-blue-500">
+          <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-main relative">
             <Input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Enter your password"
               className="border-0 focus-visible:ring-0 py-4"
@@ -162,6 +159,17 @@ const Register = () => {
               value={formik.values.password}
               onBlur={formik.handleBlur}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </button>
           </div>
 
           {getFieldError("password") && (
@@ -183,7 +191,7 @@ const Register = () => {
           className={`w-full text-white transition-colors ${
             isPending
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
+              : "bg-main hover:bg-main-foreground cursor-pointer"
           }`}
         >
           {isPending ? (

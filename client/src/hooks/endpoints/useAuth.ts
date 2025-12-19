@@ -144,7 +144,6 @@ export const useCheckAuth = () => {
 
 export const useRefreshToken = () => {};
 
-// Custom hook to easily access auth state from Redux
 export const useAuthState = () => {
   const auth = useAppSelector((state) => state.auth);
 
