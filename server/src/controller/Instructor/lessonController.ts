@@ -20,9 +20,6 @@ export const createLesson = asyncHandler(
     const { sectionId } = req.params;
     const instructorId = req.user!.id;
 
-    console.log("req.body:", req.body);
-    console.log("req.file:", req.file);
-
     logger.info("Create lesson ", {
       sectionId: req.params.sectionId,
       instructorId: req.user?.id,

@@ -21,3 +21,228 @@ export const registerSchema = z.object({
 });
 
 export type RegisterSchema = z.infer<typeof registerSchema>;
+
+///COURSES
+export const createCourseSchema = z.object({
+  title: z
+    .string("Course title is required")
+    .min(10, "Title must be at least 10 characters")
+    .max(200, "Title cannot exceed 200 characters"),
+
+  subtitle: z
+    .string()
+    .max(300, "Subtitle cannot exceed 300 characters")
+    .optional(),
+
+  description: z
+    .string("Course description is required")
+    .min(10, "Description must be at least 10 characters"),
+
+  category: z.string("Category is required").min(1, "Category is required"),
+
+  price: z.coerce
+    .number("Price is required")
+    .min(0, "Price cannot be negative")
+    .multipleOf(0.01, "Price must be a valid monetary value"),
+
+  discountPrice: z.coerce
+    .number()
+    .min(0, "Discount price cannot be negative")
+    .multipleOf(0.01, "Discount must be a valid monetary value")
+    .optional(),
+
+  language: z.string().default("en"),
+  /// had to modify requirements and whatlearn to accept strings and parse them to an array
+  requirements: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((str) => {
+        if (!str || str.trim() === "") return [];
+        try {
+          return JSON.parse(str);
+        } catch {
+          return str
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }),
+    ])
+    .optional(),
+  whatYouWillLearn: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((str) => {
+        if (!str || str.trim() === "") return [];
+        try {
+          return JSON.parse(str);
+        } catch {
+          return str
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }),
+    ])
+    .optional(),
+  thumbnail: z.string().url().optional(),
+});
+
+export type CreateCourseSchema = z.infer<typeof createCourseSchema>;
+
+export const updateCourseSchema = z.object({
+  title: z
+    .string()
+    .min(10, "Title must be at least 10 characters")
+    .max(200, "Title cannot exceed 200 characters")
+    .optional(),
+
+  subtitle: z
+    .string()
+    .max(300, "Subtitle cannot exceed 300 characters")
+    .optional(),
+
+  description: z
+    .string()
+    .min(10, "Description must be at least 10 characters for updates")
+    .optional(),
+
+  category: z.string().optional(),
+  price: z
+    .number()
+    .min(0, "Price cannot be negative")
+    .multipleOf(0.01, "Price must be a valid monetary value")
+    .optional(),
+
+  discountPrice: z
+    .number()
+    .min(0, "Discount price cannot be negative")
+    .multipleOf(0.01, "Discount must be a valid monetary value")
+    .optional(),
+
+  language: z.string().optional(),
+  duration: z.number().min(0).optional(),
+  requirements: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((str) => {
+        if (!str || str.trim() === "") return [];
+        try {
+          return JSON.parse(str);
+        } catch {
+          return str
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }),
+    ])
+    .optional(),
+  whatYouWillLearn: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((str) => {
+        if (!str || str.trim() === "") return [];
+        try {
+          return JSON.parse(str);
+        } catch {
+          return str
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }),
+    ])
+    .optional(),
+  thumbnail: z.string().url().optional(),
+});
+
+export type UpdateCourseSchema = z.infer<typeof updateCourseSchema>;
+
+///SECTIONS
+export const createSectionSchema = z.object({
+  title: z.string().min(3).max(200),
+  description: z.string().max(1000).optional().nullable().or(z.literal("")),
+});
+
+export type CreateSectionSchema = z.infer<typeof createSectionSchema>;
+
+export const updateSectionSchema = z.object({
+  title: z.string().min(3).max(200).optional(),
+  description: z.string().max(1000).optional().nullable().or(z.literal("")),
+});
+
+export type UpdateSectionSchema = z.infer<typeof updateSectionSchema>;
+
+export const reorderSectionSchema = z.object({
+  sectionOrders: z
+    .array(
+      z.object({
+        sectionId: z.string(),
+        order: z.number().int().min(1),
+      })
+    )
+    .min(1),
+});
+
+export type ReorderSectionSchema = z.infer<typeof reorderSectionSchema>;
+
+///LESSONS
+export const createLessonSchema = z.object({
+  title: z.string().min(3).max(200),
+  description: z.string().max(2000).optional().nullable().or(z.literal("")),
+  type: z.enum(["VIDEO", "ARTICLE"]),
+  videoUrl: z.string().url().optional(),
+  videoDuration: z.coerce.number().int().min(0).optional(),
+  articleContent: z.string().optional(),
+  isFree: z
+    .union([
+      z.boolean(),
+      z.string().transform((val) => val === "true" || val === "1"),
+    ])
+    .optional()
+    .default(false),
+  isPublished: z.boolean().optional(),
+});
+
+export type CreateLessonSchema = z.infer<typeof createLessonSchema>;
+
+export const updateLessonSchema = z.object({
+  title: z.string().min(3).max(200).optional(),
+  description: z.string().max(2000).optional().nullable().or(z.literal("")),
+  type: z.enum(["VIDEO", "ARTICLE"]),
+  videoUrl: z.string().url().optional().nullable().or(z.literal("")),
+  videoDuration: z.coerce.number().int().min(0).optional().nullable(),
+  articleContent: z.string().optional().nullable().or(z.literal("")),
+  isFree: z
+    .union([
+      z.boolean(),
+      z.string().transform((val) => val === "true" || val === "1"),
+    ])
+    .optional()
+    .default(false),
+  isPublished: z.boolean().optional(),
+});
+
+export type UpdateLessonSchema = z.infer<typeof updateLessonSchema>;
+
+export const reorderLessonSchema = z.object({
+  lessonOrders: z
+    .array(
+      z.object({
+        lessonId: z.string(),
+        order: z.number().int().min(1),
+      })
+    )
+
+    .min(1),
+});
+
+export type ReorderLessonSchema = z.infer<typeof reorderLessonSchema>;
+
+export const addAttachmentSchema = z.object({
+  name: z.string(),
+  url: z.string().url(),
+  size: z.number().int().min(0).optional(),
+});
+export type AddAttachmentSchema = z.infer<typeof addAttachmentSchema>;

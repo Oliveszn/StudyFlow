@@ -88,7 +88,6 @@ export const createCourseSchema = z.object({
     ])
     .optional(),
   thumbnail: z.string().url().optional(),
-  // previewVideo: z.string().url().optional(),
 });
 
 export const updateCourseSchema = z.object({
@@ -133,7 +132,6 @@ export const updateCourseSchema = z.object({
     ])
     .optional(),
   thumbnail: z.string().url().optional(),
-  // previewVideo: z.string().url().optional(),
 });
 
 export const getCourseAnalyticsSchema = z.object({

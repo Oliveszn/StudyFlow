@@ -1,9 +1,11 @@
+export type Role = "STUDENT" | "INSTRUCTOR" | "ADMIN";
+
 export interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: string;
+  role: Role;
   isEmailVerified: boolean;
 }
 export interface AuthResponse {
