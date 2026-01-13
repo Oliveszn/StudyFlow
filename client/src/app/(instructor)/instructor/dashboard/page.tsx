@@ -1,3 +1,9 @@
+"use client";
+
 export default function page() {
-  return <div>Instructor dashboard</div>;
+  return (
+    <div className="p-4 lg:p-6">
+      <div className="space-y-6">dashy</div>
+    </div>
+  );
 }
