@@ -31,7 +31,13 @@ export const getProfile = asyncHandler(
       return next(ApiError.notFound("User not found"));
     }
     logger.info("User profile fetched successfully", { userId: user.id });
-    return res.status(200).json({ user });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "User profile fetched successfully",
+        data: user,
+      });
   }
 );
 
