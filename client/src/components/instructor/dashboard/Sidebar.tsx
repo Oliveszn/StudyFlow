@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import { usePathname } from "next/navigation";
+import { useProfile } from "@/hooks/endpoints/useUser";
 
 interface DesktopSidebarProps {
   isExpanded: boolean;
@@ -19,6 +20,7 @@ export default function DesktopSidebar({
   setIsExpanded,
 }: DesktopSidebarProps) {
   const pathname = usePathname();
+  const { data } = useProfile();
   const menuItems = [
     {
       icon: LayoutDashboard,
@@ -104,8 +106,10 @@ export default function DesktopSidebar({
               ${isExpanded ? "opacity-100" : "opacity-0 w-0 overflow-hidden"}
             `}
           >
-            <p className="text-sm font-medium text-gray-900">John Doe</p>
-            <p className="text-xs text-gray-500">Instructor</p>
+            <p className="text-sm font-medium text-gray-900">
+              {data?.firstName} {data?.lastName}
+            </p>
+            <p className="text-xs text-gray-500 normal-case">{data?.role}</p>
           </div>
         </div>
       </div>

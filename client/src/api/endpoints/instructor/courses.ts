@@ -10,27 +10,48 @@ export interface Course {
   id: string;
   title: string;
   slug: string;
-  description?: string;
-  thumbnail?: string;
-  thumbnailPublicId?: string;
-  price: number;
-  discountPrice?: number;
-  categoryId: string;
+  description: string;
+  subtitle: string;
+  thumbnail: string;
+  thumbnailPublicId: string;
+  price: string;
+  discountPrice?: string;
+  currency: string;
   language: string;
-  subtitles: string[];
+
+  categoryId: string;
+  category: {
+    name: string;
+    slug: string;
+  };
+
+  whatYouWillLearn: string[];
   requirements: string[];
-  learningObjectives: string[];
-  targetAudience: string[];
-  status: CourseStatus;
+
+  isPublished: boolean;
+  publishedAt: string | null;
+
+  enrollmentCount: number;
+  reviewCount: number;
+  averageRating: number | null;
+
+  duration: string | null;
+  previewVideo: string | null;
+
   instructorId: string;
   createdAt: string;
   updatedAt: string;
+
+  _count: {
+    enrollments: number;
+    sections: number;
+  };
 }
 
 export interface CourseDetails extends Course {
   category: {
-    id: string;
     name: string;
+    slug: string;
   };
   instructor: {
     id: string;
@@ -46,10 +67,9 @@ export interface CourseDetails extends Course {
       lessons: number;
     };
   }>;
-  _count?: {
-    sections: number;
+  _count: {
     enrollments: number;
-    reviews: number;
+    sections: number;
   };
 }
 
@@ -111,7 +131,7 @@ export const courseApi = {
   getInstructorCourses: async (
     params: GetInstructorCoursesParams
   ): Promise<GetInstructorCoursesResponse> => {
-    const response = await apiClient.get("/api/instructor/courses/", {
+    const response = await apiClient.get("/api/instructor/courses", {
       params,
     });
 

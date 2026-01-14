@@ -13,7 +13,7 @@ const InstructorDashboardLayout = ({ children }: DashboardProps) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen w-full flex bg-gray-100">
+    <div className="min-h-screen w-full flex bg-white">
       <DesktopSidebar
         isExpanded={isDesktopExpanded}
         setIsExpanded={setIsDesktopExpanded}

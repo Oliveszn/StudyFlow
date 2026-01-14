@@ -86,7 +86,9 @@ export default function Navbar() {
         </div>
         {/* Search Icon */}
         <div className="lg:hidden flex items-center ml-auto">
-          <Search />
+          <button>
+            <Search />
+          </button>
         </div>
       </div>
     </nav>

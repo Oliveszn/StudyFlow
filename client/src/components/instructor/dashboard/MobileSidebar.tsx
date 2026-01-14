@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import { usePathname } from "next/navigation";
+import { useProfile } from "@/hooks/endpoints/useUser";
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export default function MobileSidebar({
   setIsOpen,
 }: MobileSidebarProps) {
   const pathname = usePathname();
+  const { data } = useProfile();
   const menuItems = [
     {
       icon: LayoutDashboard,
@@ -50,7 +52,6 @@ export default function MobileSidebar({
 
   return (
     <>
-      {/* Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
@@ -97,8 +98,10 @@ export default function MobileSidebar({
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gray-300 rounded-full" />
             <div>
-              <p className="text-sm font-medium text-gray-900">John Doe</p>
-              <p className="text-xs text-gray-500">Instructor</p>
+              <p className="text-sm font-medium text-gray-900">
+                {data?.firstName} {data?.lastName}
+              </p>
+              <p className="text-xs text-gray-500">{data?.role}</p>
             </div>
           </div>
         </div>

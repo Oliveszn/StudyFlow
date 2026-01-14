@@ -1,10 +1,23 @@
+"use client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useProfile } from "@/hooks/endpoints/useUser";
 import { Menu } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 interface HeaderProps {
   onMenuClick: () => void;
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
+  const [open, setOpen] = useState(false);
+  const { data } = useProfile();
   return (
     <header className="h-16 bg-white border-b border-gray-200 fixed top-0 right-0 left-0 lg:left-20 z-30 flex items-center justify-between px-4 lg:px-6">
       <button
@@ -18,7 +31,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
         Dashboard
       </h1>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
+        <span>
+          <Link href={"/"}>Student</Link>
+        </span>
         <button className="p-2 hover:bg-gray-100 rounded-lg">
           <svg
             className="w-5 h-5"
@@ -34,6 +50,31 @@ export default function Header({ onMenuClick }: HeaderProps) {
             />
           </svg>
         </button>
+
+        <div
+          className="relative"
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+        >
+          <DropdownMenu open={open} onOpenChange={setOpen}>
+            <DropdownMenuTrigger asChild>
+              <div className="hidden lg:flex items-center text-center font-bold justify-center object-cover rounded-full bg-black text-white cursor-pointer size-10">
+                {`${data?.firstName?.[0] ?? ""}${
+                  data?.lastName?.[0] ?? ""
+                }`.toUpperCase() || "?"}
+              </div>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" className="mt-2">
+              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-red-600">
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   );

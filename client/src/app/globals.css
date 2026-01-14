@@ -133,6 +133,10 @@
   body {
     @apply bg-background text-foreground;
   }
+  a,
+  button {
+    @apply cursor-pointer;
+  }
 }
 
 /* NAVBAR */
