@@ -1,5 +1,7 @@
 "use client";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import Search from "@/components/common/svg-icons/Search";
+import CoursesList from "@/components/instructor/dashboard/courses/CourseList";
 import { Button } from "@/components/ui/button";
 import { useGetInstructorCourse } from "@/hooks/endpoints/instructor/useCourses";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -15,7 +17,6 @@ export default function Courses() {
     status: undefined,
     search: debouncedSearch,
   });
-  console.log(data);
 
   return (
     <div className="p-4 lg:p-6">
@@ -42,49 +43,13 @@ export default function Courses() {
         </div>
 
         <div className="space-y-4">
-          {isLoading && <p>Loading...</p>}
-          {isError && <p>Something went wrong</p>}
-
-          {data?.data?.length === 0 && <p>No courses found</p>}
-
-          {data?.data?.map((course) => {
-            const isPublished = course.isPublished;
-
-            return (
-              <div
-                key={course.id}
-                className="border rounded-lg p-4 flex items-center justify-between gap-4"
-              >
-                {/* Thumbnail */}
-                <img
-                  src={course.thumbnail}
-                  alt={course.title}
-                  className="w-24 h-16 object-cover rounded-md"
-                />
-
-                {/* Title + Status */}
-                <div className="flex flex-col">
-                  <h2 className="text-lg font-semibold">{course.title}</h2>
-
-                  <span
-                    className={`text-sm font-medium uppercase ${
-                      isPublished ? "text-green-600" : "text-black-600"
-                    }`}
-                  >
-                    {isPublished ? "Published" : "Draft"}
-                  </span>
-                </div>
-
-                {/* Actions */}
-                <Link
-                  href={`/dashboard/instructor/courses/${course.slug}`}
-                  className="text-blue-600 hover:underline ml-auto"
-                >
-                  Edit / Manage Course
-                </Link>
-              </div>
-            );
-          })}
+          {isLoading && <LoadingSpinner />}
+          {isError && (
+            <p className="text-center font-medium text-lg">
+              Something went wrong
+            </p>
+          )}
+          {data?.data && <CoursesList courses={data.data} />}
         </div>
       </div>
     </div>
