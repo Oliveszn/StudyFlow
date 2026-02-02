@@ -88,7 +88,29 @@ export const createCourseSchema = z.object({
     ])
     .optional(),
   thumbnail: z.string().url().optional(),
-});
+}) .superRefine((data, ctx) => {
+    // Free course
+    if (data.price === 0 && data.discountPrice) {
+      ctx.addIssue({
+        path: ["discountPrice"],
+        message: "Free courses cannot have a discount price",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+
+    // Paid course discount validation
+    if (
+      data.discountPrice &&
+      data.price > 0 &&
+      data.discountPrice >= data.price
+    ) {
+      ctx.addIssue({
+        path: ["discountPrice"],
+        message: "Discount price must be less than the regular price",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+  });
 
 export const updateCourseSchema = z.object({
   title: z.string().min(10).max(200).optional(),
@@ -132,7 +154,27 @@ export const updateCourseSchema = z.object({
     ])
     .optional(),
   thumbnail: z.string().url().optional(),
-});
+})  .superRefine((data, ctx) => {
+    if (data.price === 0 && data.discountPrice) {
+      ctx.addIssue({
+        path: ["discountPrice"],
+        message: "Free courses cannot have a discount price",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+
+    if (
+      data.discountPrice !== undefined &&
+      data.price !== undefined &&
+      data.discountPrice >= data.price
+    ) {
+      ctx.addIssue({
+        path: ["discountPrice"],
+        message: "Discount price must be less than price",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+  });
 
 export const getCourseAnalyticsSchema = z.object({
   id: z.string(),

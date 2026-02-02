@@ -73,7 +73,7 @@ export const getInstructorCourses = asyncHandler(
         pages: Math.ceil(total / Number(limit)),
       },
     });
-  }
+  },
 );
 
 /**
@@ -113,14 +113,6 @@ export const createCourse = asyncHandler(
       thumbnailPublicId = uploadResult.public_id;
     }
 
-    //     let previewVideoUrl = null;
-
-    // if (req.files?.previewVideo) {
-    //   const result: any = await uploadMediaToCloudinary(req.files.previewVideo[0]);
-    //   previewVideoUrl = result.secure_url;
-
-    // }
-
     const course = await prisma.course.create({
       data: {
         title: request.title,
@@ -136,7 +128,6 @@ export const createCourse = asyncHandler(
         whatYouWillLearn: request.whatYouWillLearn || [],
         thumbnail: thumbnailUrl,
         thumbnailPublicId,
-        // previewVideo: previewVideo,
         currency: "NGN",
       },
       include: {
@@ -157,7 +148,7 @@ export const createCourse = asyncHandler(
       message: "Course created successfully",
       data: course,
     });
-  }
+  },
 );
 
 /**
@@ -202,7 +193,7 @@ export const getCourseById = asyncHandler(
         instructorId,
       });
       throw ApiError.notFound(
-        "Course not found or you do not have permission to access it"
+        "Course not found or you do not have permission to access it",
       );
     }
 
@@ -212,7 +203,7 @@ export const getCourseById = asyncHandler(
       success: true,
       data: course,
     });
-  }
+  },
 );
 
 /**
@@ -239,7 +230,7 @@ export const updateCourse = asyncHandler(
         instructorId,
       });
       throw ApiError.notFound(
-        "Course not found or you do not have permission to update it"
+        "Course not found or you do not have permission to update it",
       );
     }
 
@@ -309,7 +300,7 @@ export const updateCourse = asyncHandler(
       message: "Course updated successfully",
       data: course,
     });
-  }
+  },
 );
 
 /**
@@ -336,7 +327,7 @@ export const deleteCourse = asyncHandler(
         instructorId,
       });
       throw ApiError.notFound(
-        "Course not found or you do not have permission to delete it"
+        "Course not found or you do not have permission to delete it",
       );
     }
 
@@ -366,7 +357,7 @@ export const deleteCourse = asyncHandler(
       success: true,
       message: "Course deleted successfully",
     });
-  }
+  },
 );
 
 /**
@@ -402,22 +393,22 @@ export const publishCourse = asyncHandler(
     ///course should have at least one section with a lesson
     if (course.sections.length === 0) {
       throw ApiError.badRequest(
-        "Course must have at least one section before publishing"
+        "Course must have at least one section before publishing",
       );
     }
 
     const hasLessons = course.sections.some(
-      (section) => section.lessons.length > 0
+      (section) => section.lessons.length > 0,
     );
     if (!hasLessons) {
       throw ApiError.badRequest(
-        "Course must have at least one lesson before publishing"
+        "Course must have at least one lesson before publishing",
       );
     }
 
     if (!course.thumbnail) {
       throw ApiError.badRequest(
-        "Course must have a thumbnail before publishing"
+        "Course must have a thumbnail before publishing",
       );
     }
 
@@ -441,7 +432,7 @@ export const publishCourse = asyncHandler(
       message: "Course published successfully",
       data: updatedCourse,
     });
-  }
+  },
 );
 
 /**
@@ -486,7 +477,7 @@ export const unpublishCourse = asyncHandler(
       message: "Course unpublished successfully",
       data: updatedCourse,
     });
-  }
+  },
 );
 
 /**
@@ -595,5 +586,5 @@ export const getCourseAnalytics = asyncHandler(
         },
       },
     });
-  }
+  },
 );
