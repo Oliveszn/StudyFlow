@@ -46,49 +46,52 @@ export const editUser = z.object({
 });
 
 ///COURSE CREATION
-export const createCourseSchema = z.object({
-  title: z.string().min(10).max(200),
-  subtitle: z.string().max(300).optional(),
-  description: z.string().min(5),
-  category: z.string(),
-  price: z.coerce.number().min(0).multipleOf(0.01),
-  discountPrice: z.coerce.number().min(0).multipleOf(0.01).optional(),
-  language: z.string().default("en"),
-  /// had to modify requirements and whatlearn to accept strings and parse them to an array
-  requirements: z
-    .union([
-      z.array(z.string()),
-      z.string().transform((str) => {
-        if (!str || str.trim() === "") return [];
-        try {
-          return JSON.parse(str);
-        } catch {
-          return str
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-        }
-      }),
-    ])
-    .optional(),
-  whatYouWillLearn: z
-    .union([
-      z.array(z.string()),
-      z.string().transform((str) => {
-        if (!str || str.trim() === "") return [];
-        try {
-          return JSON.parse(str);
-        } catch {
-          return str
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-        }
-      }),
-    ])
-    .optional(),
-  thumbnail: z.string().url().optional(),
-}) .superRefine((data, ctx) => {
+export const createCourseSchema = z
+  .object({
+    title: z.string().min(10).max(200),
+    subtitle: z.string().max(300).optional(),
+    description: z.string().min(5),
+    category: z.string(),
+    price: z.coerce.number().min(0).multipleOf(0.01),
+    discountPrice: z.coerce.number().min(0).multipleOf(0.01).optional(),
+    language: z.string().default("en"),
+    /// had to modify requirements and whatlearn to accept strings and parse them to an array
+    requirements: z
+      .union([
+        z.array(z.string()),
+        z.string().transform((str) => {
+          if (!str || str.trim() === "") return [];
+          try {
+            return JSON.parse(str);
+          } catch {
+            return str
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
+        }),
+      ])
+      .optional(),
+    whatYouWillLearn: z
+      .union([
+        z.array(z.string()),
+        z.string().transform((str) => {
+          if (!str || str.trim() === "") return [];
+          try {
+            return JSON.parse(str);
+          } catch {
+            return str
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
+        }),
+      ])
+      .optional(),
+    // thumbnail: z.string().url().optional(),
+    thumbnail: z.any().optional(),
+  })
+  .superRefine((data, ctx) => {
     // Free course
     if (data.price === 0 && data.discountPrice) {
       ctx.addIssue({
@@ -112,49 +115,51 @@ export const createCourseSchema = z.object({
     }
   });
 
-export const updateCourseSchema = z.object({
-  title: z.string().min(10).max(200).optional(),
-  subtitle: z.string().max(300).optional(),
-  description: z.string().min(50).optional(),
-  category: z.string().optional(),
-  price: z.number().min(0).multipleOf(0.01).optional(),
-  discountPrice: z.number().min(0).multipleOf(0.01).optional(),
-  language: z.string().optional(),
-  duration: z.number().min(0).optional(),
-  requirements: z
-    .union([
-      z.array(z.string()),
-      z.string().transform((str) => {
-        if (!str || str.trim() === "") return [];
-        try {
-          return JSON.parse(str);
-        } catch {
-          return str
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-        }
-      }),
-    ])
-    .optional(),
-  whatYouWillLearn: z
-    .union([
-      z.array(z.string()),
-      z.string().transform((str) => {
-        if (!str || str.trim() === "") return [];
-        try {
-          return JSON.parse(str);
-        } catch {
-          return str
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-        }
-      }),
-    ])
-    .optional(),
-  thumbnail: z.string().url().optional(),
-})  .superRefine((data, ctx) => {
+export const updateCourseSchema = z
+  .object({
+    title: z.string().min(10).max(200).optional(),
+    subtitle: z.string().max(300).optional(),
+    description: z.string().min(50).optional(),
+    category: z.string().optional(),
+    price: z.number().min(0).multipleOf(0.01).optional(),
+    discountPrice: z.number().min(0).multipleOf(0.01).optional(),
+    language: z.string().optional(),
+    duration: z.number().min(0).optional(),
+    requirements: z
+      .union([
+        z.array(z.string()),
+        z.string().transform((str) => {
+          if (!str || str.trim() === "") return [];
+          try {
+            return JSON.parse(str);
+          } catch {
+            return str
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
+        }),
+      ])
+      .optional(),
+    whatYouWillLearn: z
+      .union([
+        z.array(z.string()),
+        z.string().transform((str) => {
+          if (!str || str.trim() === "") return [];
+          try {
+            return JSON.parse(str);
+          } catch {
+            return str
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
+        }),
+      ])
+      .optional(),
+    thumbnail: z.string().url().optional(),
+  })
+  .superRefine((data, ctx) => {
     if (data.price === 0 && data.discountPrice) {
       ctx.addIssue({
         path: ["discountPrice"],
@@ -197,7 +202,7 @@ export const reorderSectionSchema = z.object({
       z.object({
         sectionId: z.string(),
         order: z.number().int().min(1),
-      })
+      }),
     )
     .min(1),
 });
@@ -243,7 +248,7 @@ export const reorderLessonSchema = z.object({
       z.object({
         lessonId: z.string(),
         order: z.number().int().min(1),
-      })
+      }),
     )
 
     .min(1),

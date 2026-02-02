@@ -102,7 +102,8 @@ export const createCourse = asyncHandler(
       throw ApiError.notFound("Category not found");
     }
 
-    let thumbnailUrl = null;
+    // let thumbnailUrl = null;
+    let thumbnailUrl: string | undefined;
     let thumbnailPublicId = null;
 
     if (req.file) {
