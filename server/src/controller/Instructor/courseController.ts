@@ -92,7 +92,7 @@ export const createCourse = asyncHandler(
 
     /////verify if its an existing cat
     const category = await prisma.category.findUnique({
-      where: { name: request.category },
+      where: { id: request.category },
     });
     if (!category) {
       logger.warn("Invalid category during course creation", {
