@@ -36,9 +36,8 @@ export default function Courses() {
               <Search />
             </Button>
           </div>
-
-          <Button className="bg-main text-white hover:bg-main-foreground">
-            New Course
+          <Button className="bg-main text-white hover:bg-main-foreground ">
+            <Link href="/instructor/courses/create">New Course</Link>
           </Button>
         </div>
 

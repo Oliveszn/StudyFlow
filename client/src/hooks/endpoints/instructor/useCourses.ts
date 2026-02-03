@@ -29,7 +29,7 @@ export const useCreateCourse = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (form: CreateCourseSchema) => courseApi.createCourse(form),
+    mutationFn: (formData: FormData) => courseApi.createCourse(formData),
 
     onSuccess: (data) => {
       toast.success(data.message);
@@ -37,6 +37,7 @@ export const useCreateCourse = () => {
     },
 
     onError: (error: unknown) => {
+      console.error("Create course error:", error);
       const message = handleApiError(error);
       toast.error(message);
     },

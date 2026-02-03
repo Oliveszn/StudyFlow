@@ -129,7 +129,7 @@ export interface UnpublishCourseResponse {
 
 export const courseApi = {
   getInstructorCourses: async (
-    params: GetInstructorCoursesParams
+    params: GetInstructorCoursesParams,
   ): Promise<GetInstructorCoursesResponse> => {
     const response = await apiClient.get("/api/instructor/courses", {
       params,
@@ -138,38 +138,21 @@ export const courseApi = {
     return response.data;
   },
 
-  createCourse: async (
-    payload: CreateCourseSchema
-  ): Promise<CreateCourseResponse> => {
-    const formData = new FormData();
-
-    for (const key in payload) {
-      const value = payload[key as keyof CreateCourseSchema];
-      if (value !== undefined) {
-        if (Array.isArray(value)) {
-          value.forEach((item) => formData.append(key, item));
-        } else if (value instanceof File) {
-          formData.append(key, value);
-        } else {
-          formData.append(key, value.toString());
-        }
-      }
-    }
-
+  createCourse: async (formData: FormData): Promise<CreateCourseResponse> => {
     const { data } = await apiClient.post(
       "/api/instructor/courses/",
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
-      }
+      },
     );
 
     return data;
   },
 
   getCourseDetails: async (
-    courseId: string
+    courseId: string,
   ): Promise<GetCourseDetailsResponse> => {
     const response = await apiClient.get(`/api/instructor/courses/${courseId}`);
     return response.data;
@@ -177,7 +160,7 @@ export const courseApi = {
 
   updateCourse: async (
     courseId: string,
-    payload: UpdateCourseSchema
+    payload: UpdateCourseSchema,
   ): Promise<UpdateCourseResponse> => {
     // const { id, ...rest } = payload;
 
@@ -201,7 +184,7 @@ export const courseApi = {
       {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
-      }
+      },
     );
 
     return data;
@@ -214,14 +197,14 @@ export const courseApi = {
 
   publishCourse: async (id: string): Promise<PublishCourseResponse> => {
     const response = await apiClient.patch(
-      `/api/instructor/courses/${id}/publish`
+      `/api/instructor/courses/${id}/publish`,
     );
     return response.data;
   },
 
   unPublishCourse: async (id: string): Promise<UnpublishCourseResponse> => {
     const response = await apiClient.patch(
-      `/api/instructor/courses/${id}/unpublish`
+      `/api/instructor/courses/${id}/unpublish`,
     );
     return response.data;
   },

@@ -23,70 +23,92 @@ export const registerSchema = z.object({
 export type RegisterSchema = z.infer<typeof registerSchema>;
 
 ///COURSES
-export const createCourseSchema = z.object({
-  title: z
-    .string("Course title is required")
-    .min(10, "Title must be at least 10 characters")
-    .max(200, "Title cannot exceed 200 characters"),
+export const createCourseSchema = z
+  .object({
+    title: z
+      .string("Course title is required")
+      .min(10, "Title must be at least 10 characters")
+      .max(200, "Title cannot exceed 200 characters"),
 
-  subtitle: z
-    .string()
-    .max(300, "Subtitle cannot exceed 300 characters")
-    .optional(),
+    subtitle: z
+      .string()
+      .max(300, "Subtitle cannot exceed 300 characters")
+      .optional(),
 
-  description: z
-    .string("Course description is required")
-    .min(10, "Description must be at least 10 characters"),
+    description: z
+      .string("Course description is required")
+      .min(10, "Description must be at least 10 characters"),
 
-  category: z.string("Category is required").min(1, "Category is required"),
+    category: z.string("Category is required").min(1, "Category is required"),
 
-  price: z.coerce
-    .number("Price is required")
-    .min(0, "Price cannot be negative")
-    .multipleOf(0.01, "Price must be a valid monetary value"),
+    price: z.coerce
+      .number("Price is required")
+      .min(0, "Price cannot be negative")
+      .multipleOf(0.01, "Price must be a valid monetary value"),
 
-  discountPrice: z.coerce
-    .number()
-    .min(0, "Discount price cannot be negative")
-    .multipleOf(0.01, "Discount must be a valid monetary value")
-    .optional(),
+    discountPrice: z.coerce
+      .number()
+      .min(0, "Discount price cannot be negative")
+      .multipleOf(0.01, "Discount must be a valid monetary value")
+      .optional(),
 
-  language: z.string().default("en"),
-  /// had to modify requirements and whatlearn to accept strings and parse them to an array
-  requirements: z
-    .union([
-      z.array(z.string()),
-      z.string().transform((str) => {
-        if (!str || str.trim() === "") return [];
-        try {
-          return JSON.parse(str);
-        } catch {
-          return str
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-        }
-      }),
-    ])
-    .optional(),
-  whatYouWillLearn: z
-    .union([
-      z.array(z.string()),
-      z.string().transform((str) => {
-        if (!str || str.trim() === "") return [];
-        try {
-          return JSON.parse(str);
-        } catch {
-          return str
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-        }
-      }),
-    ])
-    .optional(),
-  thumbnail: z.string().url().optional(),
-});
+    language: z.string().default("en"),
+    /// had to modify requirements and whatlearn to accept strings and parse them to an array
+    requirements: z
+      .union([
+        z.array(z.string()),
+        z.string().transform((str) => {
+          if (!str || str.trim() === "") return [];
+          try {
+            return JSON.parse(str);
+          } catch {
+            return str
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
+        }),
+      ])
+      .optional(),
+    whatYouWillLearn: z
+      .union([
+        z.array(z.string()),
+        z.string().transform((str) => {
+          if (!str || str.trim() === "") return [];
+          try {
+            return JSON.parse(str);
+          } catch {
+            return str
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
+        }),
+      ])
+      .optional(),
+    thumbnail: z.string().url().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.price === 0 && data.discountPrice) {
+      ctx.addIssue({
+        path: ["discountPrice"],
+        message: "Free courses cannot have a discount price",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+
+    if (
+      data.discountPrice !== undefined &&
+      data.price !== undefined &&
+      data.discountPrice >= data.price
+    ) {
+      ctx.addIssue({
+        path: ["discountPrice"],
+        message: "Discount price must be less than price",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+  });
 
 export type CreateCourseSchema = z.infer<typeof createCourseSchema>;
 
@@ -180,7 +202,7 @@ export const reorderSectionSchema = z.object({
       z.object({
         sectionId: z.string(),
         order: z.number().int().min(1),
-      })
+      }),
     )
     .min(1),
 });
@@ -232,7 +254,7 @@ export const reorderLessonSchema = z.object({
       z.object({
         lessonId: z.string(),
         order: z.number().int().min(1),
-      })
+      }),
     )
 
     .min(1),
@@ -246,3 +268,87 @@ export const addAttachmentSchema = z.object({
   size: z.number().int().min(0).optional(),
 });
 export type AddAttachmentSchema = z.infer<typeof addAttachmentSchema>;
+
+////FOR CREATING COURSES IN OUR MULTI STEP
+export const step1Schema = z.object({
+  title: z.string().min(10, "Title must be at least 10 characters").max(200),
+  subtitle: z.string().max(300).optional(),
+  description: z.string().min(5, "Description must be at least 5 characters"),
+});
+
+export const step2Schema = z
+  .object({
+    category: z.string().min(1, "Please select a category"),
+    price: z.coerce
+      .number()
+      .min(0, "Price must be 0 or greater")
+      .multipleOf(0.01),
+    discountPrice: z.coerce.number().min(0).multipleOf(0.01).optional(),
+    language: z.string().default("en"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.price === 0 && data.discountPrice) {
+      ctx.addIssue({
+        path: ["discountPrice"],
+        message: "Free courses cannot have a discount price",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+
+    if (
+      data.discountPrice !== undefined &&
+      data.price !== undefined &&
+      data.discountPrice >= data.price
+    ) {
+      ctx.addIssue({
+        path: ["discountPrice"],
+        message: "Discount price must be less than price",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+  });
+
+export const step3Schema = z.object({
+  requirements: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((str) => {
+        if (!str || str.trim() === "") return [];
+        try {
+          return JSON.parse(str);
+        } catch {
+          return str
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }),
+    ])
+    .optional(),
+  whatYouWillLearn: z
+    .union([
+      z.array(z.string()),
+      z.string().transform((str) => {
+        if (!str || str.trim() === "") return [];
+        try {
+          return JSON.parse(str);
+        } catch {
+          return str
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
+      }),
+    ])
+    .optional(),
+  thumbnail: z.union([z.string().optional(), z.instanceof(File).optional()]),
+});
+
+export const stepCreateCourseSchema = step1Schema
+  .merge(step2Schema)
+  .merge(step3Schema);
+
+export type Step1FormData = z.infer<typeof step1Schema>;
+export type Step2FormData = z.infer<typeof step2Schema>;
+export type Step3FormData = z.infer<typeof step3Schema>;
+export type CreateCourseFormData = z.infer<typeof stepCreateCourseSchema>;
