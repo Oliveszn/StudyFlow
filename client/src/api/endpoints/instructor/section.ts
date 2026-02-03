@@ -4,6 +4,7 @@ import {
   UpdateSectionSchema,
   ReorderSectionSchema,
 } from "@/utils/validationSchema";
+import { Lesson } from "./lessons";
 
 export interface Section {
   id: string;
@@ -25,11 +26,12 @@ export interface SectionDetails extends Section {
     slug: string;
     instructorId: string;
   };
-  lessons: Array<{
-    id: string;
-    title: string;
-    order: number;
-  }>;
+  // lessons: Array<{
+  //   id: string;
+  //   title: string;
+  //   order: number;
+  // }>;
+  lessons: Lesson[];
 }
 
 export interface CreateSectionResponse {
@@ -63,14 +65,14 @@ export interface ReorderSectionsResponse {
 export const sectionApi = {
   createSection: async (
     courseId: string,
-    payload: CreateSectionSchema
+    payload: CreateSectionSchema,
   ): Promise<CreateSectionResponse> => {
     const { data } = await apiClient.post(
       `/api/instructor/courses/${courseId}/sections`,
       payload,
       {
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
@@ -80,21 +82,21 @@ export const sectionApi = {
       `/api/instructor/sections/${sectionId}`,
       {
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
 
   updateSection: async (
     sectionId: string,
-    payload: UpdateSectionSchema
+    payload: UpdateSectionSchema,
   ): Promise<UpdateSectionResponse> => {
     const { data } = await apiClient.put(
       `/api/instructor/sections/${sectionId}`,
       payload,
       {
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
@@ -104,21 +106,21 @@ export const sectionApi = {
       `/api/instructor/sections/${sectionId}`,
       {
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
 
   reorderSections: async (
     courseId: string,
-    payload: ReorderSectionSchema
+    payload: ReorderSectionSchema,
   ): Promise<ReorderSectionsResponse> => {
     const { data } = await apiClient.patch(
       `/api/instructor/courses/${courseId}/sections/reorder`,
       payload,
       {
         withCredentials: true,
-      }
+      },
     );
     return data;
   },

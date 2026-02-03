@@ -35,7 +35,7 @@ export default function CourseCard({
       </div>
 
       <Link
-        href={`/dashboard/instructor/courses/${slug}`}
+        href={`/instructor/dashboard/courses/${id}`}
         className="text-blue-600 hover:underline ml-auto"
       >
         Edit / Manage Course

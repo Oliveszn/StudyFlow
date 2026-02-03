@@ -14,8 +14,8 @@ export interface Course {
   subtitle: string;
   thumbnail: string;
   thumbnailPublicId: string;
-  price: string;
-  discountPrice?: string;
+  price: number;
+  discountPrice?: number;
   currency: string;
   language: string;
 
@@ -35,7 +35,7 @@ export interface Course {
   reviewCount: number;
   averageRating: number | null;
 
-  duration: string | null;
+  duration: number | null;
   previewVideo: string | null;
 
   instructorId: string;

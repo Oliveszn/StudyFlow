@@ -45,6 +45,10 @@ export const loadPersistedData = (): {
   currentStep: number;
   formData: Record<string, any>;
 } | null => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
@@ -56,6 +60,8 @@ export const loadPersistedData = (): {
 };
 
 export const clearPersistedData = () => {
+  if (typeof window === "undefined") return;
+
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (e) {
