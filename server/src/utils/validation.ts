@@ -121,8 +121,8 @@ export const updateCourseSchema = z
     subtitle: z.string().max(300).optional(),
     description: z.string().min(50).optional(),
     category: z.string().optional(),
-    price: z.number().min(0).multipleOf(0.01).optional(),
-    discountPrice: z.number().min(0).multipleOf(0.01).optional(),
+    price: z.coerce.number().min(0).multipleOf(0.01).optional(),
+    discountPrice: z.coerce.number().min(0).multipleOf(0.01).optional(),
     language: z.string().optional(),
     duration: z.number().min(0).optional(),
     requirements: z
