@@ -89,7 +89,7 @@ export const createCourseSchema = z
       ])
       .optional(),
     // thumbnail: z.string().url().optional(),
-    thumbnail: z.any().optional(),
+    // thumbnail: z.any().optional(),
   })
   .superRefine((data, ctx) => {
     // Free course
@@ -157,7 +157,7 @@ export const updateCourseSchema = z
         }),
       ])
       .optional(),
-    thumbnail: z.string().url().optional(),
+    // thumbnail: z.string().url().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.price === 0 && data.discountPrice) {
