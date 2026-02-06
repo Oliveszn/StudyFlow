@@ -112,74 +112,96 @@ export const createCourseSchema = z
 
 export type CreateCourseSchema = z.infer<typeof createCourseSchema>;
 
-export const updateCourseSchema = z.object({
-  title: z
-    .string()
-    .min(10, "Title must be at least 10 characters")
-    .max(200, "Title cannot exceed 200 characters")
-    .optional(),
+// export const updateCourseSchema = z
+//   .object({
+//     title: z
+//       .string()
+//       .min(10, "Title must be at least 10 characters")
+//       .max(200, "Title cannot exceed 200 characters")
+//       .optional(),
 
-  subtitle: z
-    .string()
-    .max(300, "Subtitle cannot exceed 300 characters")
-    .optional(),
+//     subtitle: z
+//       .string()
+//       .max(300, "Subtitle cannot exceed 300 characters")
+//       .optional(),
 
-  description: z
-    .string()
-    .min(10, "Description must be at least 10 characters for updates")
-    .optional(),
+//     description: z
+//       .string()
+//       .min(10, "Description must be at least 10 characters for updates")
+//       .optional(),
 
-  category: z.string().optional(),
-  price: z
-    .number()
-    .min(0, "Price cannot be negative")
-    .multipleOf(0.01, "Price must be a valid monetary value")
-    .optional(),
+//     category: z.string().optional(),
+//     price: z
+//       .number()
+//       .min(0, "Price cannot be negative")
+//       .multipleOf(0.01, "Price must be a valid monetary value")
+//       .optional(),
 
-  discountPrice: z
-    .number()
-    .min(0, "Discount price cannot be negative")
-    .multipleOf(0.01, "Discount must be a valid monetary value")
-    .optional(),
+//     discountPrice: z
+//       .number()
+//       .min(0, "Discount price cannot be negative")
+//       .multipleOf(0.01, "Discount must be a valid monetary value")
+//       .optional(),
 
-  language: z.string().optional(),
-  duration: z.number().min(0).optional(),
-  requirements: z
-    .union([
-      z.array(z.string()),
-      z.string().transform((str) => {
-        if (!str || str.trim() === "") return [];
-        try {
-          return JSON.parse(str);
-        } catch {
-          return str
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-        }
-      }),
-    ])
-    .optional(),
-  whatYouWillLearn: z
-    .union([
-      z.array(z.string()),
-      z.string().transform((str) => {
-        if (!str || str.trim() === "") return [];
-        try {
-          return JSON.parse(str);
-        } catch {
-          return str
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-        }
-      }),
-    ])
-    .optional(),
-  thumbnail: z.string().url().optional(),
-});
+//     language: z.string().optional(),
+//     duration: z.number().min(0).optional(),
+//     requirements: z
+//       .union([
+//         z.array(z.string()),
+//         z.string().transform((str) => {
+//           if (!str || str.trim() === "") return [];
+//           try {
+//             return JSON.parse(str);
+//           } catch {
+//             return str
+//               .split(",")
+//               .map((s) => s.trim())
+//               .filter(Boolean);
+//           }
+//         }),
+//       ])
+//       .optional(),
+//     whatYouWillLearn: z
+//       .union([
+//         z.array(z.string()),
+//         z.string().transform((str) => {
+//           if (!str || str.trim() === "") return [];
+//           try {
+//             return JSON.parse(str);
+//           } catch {
+//             return str
+//               .split(",")
+//               .map((s) => s.trim())
+//               .filter(Boolean);
+//           }
+//         }),
+//       ])
+//       .optional(),
+//     thumbnail: z.string().url().optional(),
+//   })
+//   .superRefine((data, ctx) => {
+//     if (data.price === 0 && data.discountPrice) {
+//       ctx.addIssue({
+//         path: ["discountPrice"],
+//         message: "Free courses cannot have a discount price",
+//         code: z.ZodIssueCode.custom,
+//       });
+//     }
 
-export type UpdateCourseSchema = z.infer<typeof updateCourseSchema>;
+//     if (
+//       data.discountPrice !== undefined &&
+//       data.price !== undefined &&
+//       data.discountPrice >= data.price
+//     ) {
+//       ctx.addIssue({
+//         path: ["discountPrice"],
+//         message: "Discount price must be less than price",
+//         code: z.ZodIssueCode.custom,
+//       });
+//     }
+//   });
+
+// export type UpdateCourseSchema = z.infer<typeof updateCourseSchema>;
 
 ///SECTIONS
 export const createSectionSchema = z.object({
@@ -341,7 +363,10 @@ export const step3Schema = z.object({
       }),
     ])
     .optional(),
-  thumbnail: z.union([z.string().optional(), z.instanceof(File).optional()]),
+  thumbnail: z
+    .union([z.string(), z.instanceof(File)])
+    .nullable()
+    .optional(),
 });
 
 export const stepCreateCourseSchema = step1Schema

@@ -14,7 +14,6 @@ export default function ProgressBar() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      {/* Progress Bar */}
       <div className="relative mb-8">
         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
           <div
@@ -24,7 +23,6 @@ export default function ProgressBar() {
         </div>
       </div>
 
-      {/* Step Labels */}
       <div className="flex justify-between">
         {steps.map((step) => (
           <div

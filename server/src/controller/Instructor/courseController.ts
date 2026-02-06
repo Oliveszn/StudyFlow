@@ -247,11 +247,12 @@ export const updateCourse = asyncHandler(
       ...updateData,
       ...(newSlug && { slug: newSlug }),
     };
+    delete prismaData.category;
 
     ////verify the category exists if its being updated
     if (updateData.category) {
       const category = await prisma.category.findUnique({
-        where: { name: updateData.category },
+        where: { id: updateData.category },
       });
 
       if (!category) {

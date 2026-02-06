@@ -9,15 +9,5 @@ export default function CreateCourseLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const dispatch = useAppDispatch();
-
-  // Reset form when component unmounts (user navigates away)
-  //   useEffect(() => {
-  //     return () => {
-  //       // Optional: only reset if user is navigating away without completing
-  //       dispatch(resetForm());
-  //     };
-  //   }, [dispatch]);
-
   return <>{children}</>;
 }

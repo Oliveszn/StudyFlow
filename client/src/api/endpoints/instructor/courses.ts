@@ -1,8 +1,8 @@
 import apiClient from "@/api/client";
-import {
-  CreateCourseSchema,
-  UpdateCourseSchema,
-} from "@/utils/validationSchema";
+// import {
+//   CreateCourseSchema,
+//   UpdateCourseSchema,
+// } from "@/utils/validationSchema";
 
 export type CourseStatus = "published" | "draft";
 
@@ -160,24 +160,8 @@ export const courseApi = {
 
   updateCourse: async (
     courseId: string,
-    payload: UpdateCourseSchema,
+    formData: FormData,
   ): Promise<UpdateCourseResponse> => {
-    // const { id, ...rest } = payload;
-
-    const formData = new FormData();
-    for (const key in payload) {
-      const value = payload[key as keyof typeof payload];
-      if (value !== undefined) {
-        if (Array.isArray(value)) {
-          value.forEach((item) => formData.append(key, item));
-        } else if (value instanceof File) {
-          formData.append(key, value);
-        } else {
-          formData.append(key, value.toString());
-        }
-      }
-    }
-
     const { data } = await apiClient.put(
       `/api/instructor/courses/${courseId}`,
       formData,

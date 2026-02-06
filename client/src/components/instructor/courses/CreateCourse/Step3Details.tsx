@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { Plus, X, Upload } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";
 import FormNavigation from "./FormNavigation";
-import { useCreateCourse } from "@/hooks/endpoints/instructor/useCourses";
+import {
+  useCreateCourse,
+  useUpdateCourse,
+} from "@/hooks/endpoints/instructor/useCourses";
 import {
   resetForm,
   setSubmitting,
@@ -15,16 +18,33 @@ import {
 } from "@/store/CreateCourseSlice";
 import { step3Schema } from "@/utils/validationSchema";
 import { clearPersistedData } from "@/store/middleware/PersistCreateCourse";
+import { toast } from "sonner";
 
 export default function Step3Details() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const formData = useAppSelector((state) => state.createCourse.formData);
-  const { mutate: createCourse } = useCreateCourse();
+  const isEditMode = useAppSelector((state) => state.createCourse.isEditMode);
+  const editCourseId = useAppSelector(
+    (state) => state.createCourse.editCourseId,
+  );
+
+  const { mutate: createCourse, isPending: isCreating } = useCreateCourse();
+  const { mutate: updateCourse, isPending: isUpdating } = useUpdateCourse();
 
   const [requirementInput, setRequirementInput] = useState("");
   const [learningInput, setLearningInput] = useState("");
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [hasNewThumbnail, setHasNewThumbnail] = useState(false);
+
+  const isSubmitting = isEditMode ? isUpdating : isCreating;
+
+  /////Setting existing thumbnail preview in edit mode
+  useEffect(() => {
+    if (isEditMode && formData.existingThumbnailUrl && !hasNewThumbnail) {
+      setThumbnailPreview(formData.existingThumbnailUrl);
+    }
+  }, [isEditMode, formData.existingThumbnailUrl, hasNewThumbnail]);
 
   const formik = useFormik({
     initialValues: {
@@ -34,8 +54,8 @@ export default function Step3Details() {
     },
     validationSchema: toFormikValidationSchema(step3Schema),
     enableReinitialize: true,
+    validateOnMount: true,
     onSubmit: async (values) => {
-      dispatch(setSubmitting(true));
       dispatch(updateFormData(values));
 
       // Combine all form data
@@ -49,7 +69,7 @@ export default function Step3Details() {
       //appending normal fields
       Object.entries(completeFormData).forEach(([key, value]) => {
         if (value === null || value === undefined) return;
-        if (key === "thumbnail") return;
+        if (key === "thumbnail" || key === "existingThumbnailUrl") return;
 
         if (Array.isArray(value)) {
           formDataPayload.append(key, JSON.stringify(value));
@@ -58,22 +78,37 @@ export default function Step3Details() {
         }
       });
 
-      //then appendign file
-      if (completeFormData.thumbnail instanceof File) {
-        formDataPayload.append("thumbnail", completeFormData.thumbnail);
+      // Only append thumbnail if user uploaded a NEW one
+      if (hasNewThumbnail && values.thumbnail instanceof File) {
+        formDataPayload.append("thumbnail", values.thumbnail);
       }
 
-      createCourse(formDataPayload, {
-        onSuccess: () => {
-          dispatch(setSubmitting(false));
-          dispatch(resetForm());
-          clearPersistedData();
-          router.push("/instructor/dashboard/courses");
-        },
-        onError: () => {
-          dispatch(setSubmitting(false));
-        },
-      });
+      if (isEditMode && editCourseId) {
+        updateCourse(
+          { courseId: editCourseId, form: formDataPayload },
+          {
+            onSuccess: () => {
+              clearPersistedData();
+              dispatch(resetForm());
+              router.push(`/instructor/dashboard/courses/${editCourseId}`);
+            },
+            onError: (error) => {
+              toast.error("Failed to update course. Please try again.");
+            },
+          },
+        );
+      } else {
+        createCourse(formDataPayload, {
+          onSuccess: () => {
+            dispatch(resetForm());
+            clearPersistedData();
+            router.push("/instructor/dashboard/courses");
+          },
+          onError: (error) => {
+            toast.error("Failed to create course. Please try again.");
+          },
+        });
+      }
     },
   });
 
@@ -112,6 +147,7 @@ export default function Step3Details() {
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setHasNewThumbnail(true);
       formik.setFieldValue("thumbnail", file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -120,6 +156,26 @@ export default function Step3Details() {
       reader.readAsDataURL(file);
     }
   };
+
+  const handleRemoveThumbnail = () => {
+    setThumbnailPreview(null);
+    setHasNewThumbnail(false);
+    formik.setFieldValue("thumbnail", null);
+
+    // In edit mode, restore the existing thumbnail preview
+    if (isEditMode && formData.existingThumbnailUrl) {
+      setThumbnailPreview(formData.existingThumbnailUrl);
+    }
+  };
+
+  // SIMPLIFIED VALIDATION CHECK
+  const hasRequiredFields =
+    formik.values.requirements.length > 0 &&
+    formik.values.whatYouWillLearn.length > 0;
+
+  const isFormDisabled = isEditMode
+    ? !hasRequiredFields || isSubmitting // In edit mode, just check required fields
+    : !formik.isValid || isSubmitting; // In create mode, use full validation
 
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-6">
@@ -231,25 +287,51 @@ export default function Step3Details() {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Course Thumbnail
+          {isEditMode && !hasNewThumbnail && (
+            <span className="ml-2 text-xs text-blue-600 font-normal">
+              (Current thumbnail shown - upload to replace)
+            </span>
+          )}
         </label>
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
           {thumbnailPreview ? (
             <div className="space-y-4">
-              <img
-                src={thumbnailPreview}
-                alt="Thumbnail preview"
-                className="max-h-48 mx-auto rounded-lg"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  setThumbnailPreview(null);
-                  formik.setFieldValue("thumbnail", null);
-                }}
-                className="text-sm text-red-600 hover:text-red-700"
-              >
-                Remove
-              </button>
+              <div className="relative inline-block">
+                <img
+                  src={thumbnailPreview}
+                  alt="Thumbnail preview"
+                  className="max-h-48 mx-auto rounded-lg"
+                />
+                {!hasNewThumbnail && isEditMode && (
+                  <div className="absolute top-2 right-2">
+                    <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
+                      Current
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-center gap-3">
+                {hasNewThumbnail && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveThumbnail}
+                    className="text-sm text-red-600 hover:text-red-700"
+                  >
+                    {isEditMode ? "Cancel Change" : "Remove"}
+                  </button>
+                )}
+                <label className="cursor-pointer text-sm text-blue-600 hover:text-blue-700">
+                  {hasNewThumbnail || !isEditMode
+                    ? "Change Image"
+                    : "Upload New Image"}
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleThumbnailChange}
+                  />
+                </label>
+              </div>
             </div>
           ) : (
             <div>
@@ -271,7 +353,11 @@ export default function Step3Details() {
         </div>
       </div>
 
-      <FormNavigation isNextDisabled={!formik.isValid} isLastStep />
+      <FormNavigation
+        isNextDisabled={isFormDisabled}
+        isSubmitting={isSubmitting}
+        isLastStep
+      />
     </form>
   );
 }

@@ -9,18 +9,19 @@ interface FormNavigationProps {
   onPrevious?: () => void;
   isNextDisabled?: boolean;
   isLastStep?: boolean;
+  isSubmitting?: boolean;
 }
 export default function FormNavigation({
   onNext,
   onPrevious,
   isNextDisabled = false,
   isLastStep = false,
+  isSubmitting = false,
 }: FormNavigationProps) {
   const dispatch = useAppDispatch();
   const currentStep = useAppSelector((state) => state.createCourse.currentStep);
-  const isSubmitting = useAppSelector(
-    (state) => state.createCourse.isSubmitting,
-  );
+
+  const isEditMode = useAppSelector((state) => state.createCourse.isEditMode);
 
   const handlePrevious = () => {
     if (onPrevious) {
@@ -70,7 +71,13 @@ export default function FormNavigation({
           </>
         ) : (
           <>
-            <span>{isLastStep ? "Create Course" : "Next"}</span>
+            <span>
+              {isLastStep
+                ? isEditMode
+                  ? "Update Course"
+                  : "Create Course"
+                : "Next"}
+            </span>
             {!isLastStep && <ChevronRight className="w-5 h-5" />}
           </>
         )}

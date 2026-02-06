@@ -184,7 +184,7 @@ router.get("/:id", getCourseById);
  *         description: Course not found or unauthorized
  */
 
-router.put("/:id", updateCourse);
+router.put("/:id", upload.single("thumbnail"), updateCourse);
 
 /**
  * @swagger

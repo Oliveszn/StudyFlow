@@ -10,6 +10,7 @@ import { step1Schema } from "@/utils/validationSchema";
 export default function Step1BasicInfo() {
   const dispatch = useAppDispatch();
   const formData = useAppSelector((state) => state.createCourse.formData);
+  const isEditMode = useAppSelector((state) => state.createCourse.isEditMode);
 
   const formik = useFormik({
     initialValues: {
@@ -114,7 +115,9 @@ export default function Step1BasicInfo() {
         )}
       </div>
 
-      <FormNavigation isNextDisabled={!formik.isValid || !formik.dirty} />
+      <FormNavigation
+        isNextDisabled={!formik.isValid || (!isEditMode && !formik.dirty)}
+      />
     </form>
   );
 }

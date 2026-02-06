@@ -7,7 +7,6 @@ import {
   useDeleteCourse,
   usePublishCourse,
   useUnPublishCourse,
-  useUpdateCourse,
 } from "@/hooks/endpoints/instructor/useCourses";
 
 interface CourseActionsMenuProps {
@@ -26,7 +25,6 @@ export default function CourseActionsMenu({
   const { mutate: publishCourse } = usePublishCourse();
   const { mutate: unpublishCourse } = useUnPublishCourse();
   const { mutate: deleteCourse } = useDeleteCourse();
-  const { mutate: updateCourse } = useUpdateCourse();
 
   // Close on outside click
   useEffect(() => {
@@ -61,12 +59,10 @@ export default function CourseActionsMenu({
     }
   };
 
-  // const handleEdit = () => {
-  //   setIsOpen(false);
-  //   updateCourse(courseId, {
-  //       onSuccess: () => router.push("/instructor/dashboard/courses"),
-  //     });
-  // }
+  const handleEdit = () => {
+    setIsOpen(false);
+    router.push(`/instructor/courses/${courseId}/edit`);
+  };
 
   return (
     <div ref={menuRef} className="relative">
@@ -98,7 +94,10 @@ export default function CourseActionsMenu({
 
           <div className="border-t border-gray-100" />
 
-          <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition text-left">
+          <button
+            onClick={handleEdit}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition text-left"
+          >
             <Pencil className="w-4 h-4 text-green-600" />
             <span>Edit Course</span>
           </button>

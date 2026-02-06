@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import Providers from "./providers";
 import ConditionalFooter from "@/components/common/ConditionFooter";
 import ConditionalNav from "@/components/common/ConditionalNav";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +36,7 @@ export default function RootLayout({
         <Toaster position="top-right" richColors />
         <Providers>
           <ConditionalNav />
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
 
           <ConditionalFooter />
         </Providers>

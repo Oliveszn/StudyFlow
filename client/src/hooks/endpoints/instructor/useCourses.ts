@@ -3,10 +3,10 @@ import {
   GetInstructorCoursesParams,
 } from "@/api/endpoints/instructor/courses";
 import { handleApiError } from "@/utils/apiError";
-import {
-  CreateCourseSchema,
-  UpdateCourseSchema,
-} from "@/utils/validationSchema";
+// import {
+//   CreateCourseSchema,
+//   UpdateCourseSchema,
+// } from "@/utils/validationSchema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -37,7 +37,6 @@ export const useCreateCourse = () => {
     },
 
     onError: (error: unknown) => {
-      console.error("Create course error:", error);
       const message = handleApiError(error);
       toast.error(message);
     },
@@ -64,15 +63,11 @@ export const useUpdateCourse = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      courseId,
-      form,
-    }: {
-      courseId: string;
-      form: UpdateCourseSchema;
-    }) => courseApi.updateCourse(courseId, form),
+    mutationFn: ({ courseId, form }: { courseId: string; form: FormData }) =>
+      courseApi.updateCourse(courseId, form),
 
-    onSuccess: (data, courseId) => {
+    onSuccess: (data, variables) => {
+      const { courseId } = variables;
       toast.success(data.message);
       queryClient.invalidateQueries({ queryKey: ["courses"] });
       queryClient.invalidateQueries({ queryKey: ["course", courseId] });

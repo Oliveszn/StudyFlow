@@ -119,7 +119,7 @@ export const updateCourseSchema = z
   .object({
     title: z.string().min(10).max(200).optional(),
     subtitle: z.string().max(300).optional(),
-    description: z.string().min(50).optional(),
+    description: z.string().min(5).optional(),
     category: z.string().optional(),
     price: z.coerce.number().min(0).multipleOf(0.01).optional(),
     discountPrice: z.coerce.number().min(0).multipleOf(0.01).optional(),

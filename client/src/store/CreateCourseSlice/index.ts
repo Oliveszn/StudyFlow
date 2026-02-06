@@ -17,12 +17,16 @@ export interface CreateCourseFormData {
   requirements: string[];
   whatYouWillLearn: string[];
   thumbnail?: File | null;
+
+  existingThumbnailUrl?: string;
 }
 
 interface CreateCourseState {
   currentStep: number;
   formData: Partial<CreateCourseFormData>;
   isSubmitting: boolean;
+  isEditMode: boolean;
+  editCourseId: string | null;
 }
 
 const persisted = loadPersistedData();
@@ -38,6 +42,8 @@ const initialState: CreateCourseState = {
     ...persisted?.formData,
   },
   isSubmitting: false,
+  isEditMode: false,
+  editCourseId: null,
 };
 
 const createCourseSlice = createSlice({
@@ -66,6 +72,21 @@ const createCourseSlice = createSlice({
     setSubmitting: (state, action: PayloadAction<boolean>) => {
       state.isSubmitting = action.payload;
     },
+    initializeEditMode: (
+      state,
+      action: PayloadAction<{
+        courseId: string;
+        formData: Partial<CreateCourseFormData>;
+      }>,
+    ) => {
+      state.isEditMode = true;
+      state.editCourseId = action.payload.courseId;
+      state.formData = {
+        ...state.formData,
+        ...action.payload.formData,
+      };
+      state.currentStep = 1;
+    },
     resetForm: (state) => {
       state.currentStep = 1;
       state.formData = {
@@ -75,6 +96,8 @@ const createCourseSlice = createSlice({
         whatYouWillLearn: [],
       };
       state.isSubmitting = false;
+      state.isEditMode = false;
+      state.editCourseId = null;
     },
   },
 });
@@ -85,6 +108,7 @@ export const {
   previousStep,
   updateFormData,
   setSubmitting,
+  initializeEditMode,
   resetForm,
 } = createCourseSlice.actions;
 
