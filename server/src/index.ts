@@ -44,7 +44,7 @@ app.use(helmet());
 app.use(
   cors({
     origin: [process.env.CLIENT_BASE_URL as string, "http://localhost:3000"],
-    methods: ["POST", "GET", "PUT", "DELETE"],
+    methods: ["POST", "GET", "PATCH", "PUT", "DELETE"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
@@ -53,7 +53,7 @@ app.use(
       "Pragma",
     ],
     credentials: true,
-  })
+  }),
 );
 app.use(cookieParser());
 app.use(express.json());
