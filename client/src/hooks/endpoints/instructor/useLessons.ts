@@ -1,4 +1,7 @@
-import { lessonApi } from "@/api/endpoints/instructor/lessons";
+import {
+  CreateLessonResponse,
+  lessonApi,
+} from "@/api/endpoints/instructor/lessons";
 import { handleApiError } from "@/utils/apiError";
 import {
   CreateLessonSchema,
@@ -15,32 +18,21 @@ import { toast } from "sonner";
 export const useCreateLesson = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({
-      sectionId,
-      form,
-      videoFile,
-    }: {
+  return useMutation<
+    CreateLessonResponse,
+    unknown,
+    {
       sectionId: string;
       form: CreateLessonSchema;
-      videoFile?: File;
-    }) => lessonApi.createLesson(sectionId, form, videoFile),
+    }
+  >({
+    mutationFn: ({ sectionId, form }) =>
+      lessonApi.createLesson(sectionId, form),
 
     onSuccess: (data, { sectionId }) => {
       toast.success(data.message || "Lesson created successfully");
-
       queryClient.invalidateQueries({ queryKey: ["section", sectionId] });
-
-      const sectionData = queryClient.getQueryData<{
-        data: { courseId: string };
-      }>(["section", sectionId]);
-      if (sectionData?.data?.courseId) {
-        queryClient.invalidateQueries({
-          queryKey: ["course", sectionData.data.courseId],
-        });
-      }
     },
-
     onError: (error: unknown) => {
       const message = handleApiError(error);
       toast.error(message);
@@ -192,13 +184,48 @@ export const useGenerateVideoUploadUrl = () => {
       fileType: string;
     }) => lessonApi.generateVideoUploadUrl(lessonId, fileName, fileType),
 
-    onSuccess: (data) => {
-      toast.success(data.message || "Upload URL generated successfully");
+    // onSuccess: (data) => {
+    //   toast.success(data.message || "Upload URL generated successfully");
+    // },
+
+    // onError: (error: unknown) => {
+    //   const message = handleApiError(error);
+    //   toast.error(message);
+    // },
+  });
+};
+
+/**
+ * Hook to attach a video to lesson
+ */
+export const useAttachLessonVideo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      lessonId,
+      videoUrl,
+      videoPublicId,
+      videoDuration,
+    }: {
+      lessonId: string;
+      videoUrl: string;
+      videoPublicId: string;
+      videoDuration: number;
+    }) =>
+      lessonApi.attachLessonVideo(lessonId, {
+        videoUrl,
+        videoPublicId,
+        videoDuration,
+      }),
+
+    onSuccess: () => {
+      toast.success("Video attached successfully");
+      queryClient.invalidateQueries({ queryKey: ["lesson"] });
     },
 
     onError: (error: unknown) => {
-      const message = handleApiError(error);
-      toast.error(message);
+      toast.error(handleApiError(error));
     },
   });
 };

@@ -15,33 +15,32 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadMediaToCloudinary = (file: any) => {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        resource_type: "auto",
+// const uploadMediaToCloudinary = (file: any) => {
+//   return new Promise((resolve, reject) => {
+//     const uploadStream = cloudinary.uploader.upload_stream(
+//       {
+//         resource_type: "auto",
 
-        quality: "auto:good", // Auto quality optimization
-        fetch_format: "auto", // Auto format selection
-        flags: "progressive", // Progressive JPEG loading
-        //Set reasonable size limits
-        width: 1920,
-        height: 1080,
-        crop: "limit", // Only resize if larger than specified dimensions
-      },
-      (error, result) => {
-        if (error) {
-          logger.error("Error while uploading media to cloudinary", error);
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      }
-    );
+//         quality: "auto:good", //quality optimization
+//         fetch_format: "auto", //format selection
+//         flags: "progressive", //progressive JPEG loading
+//         width: 1920,
+//         height: 1080,
+//         crop: "limit", /////only resize if larger than specified dimensions
+//       },
+//       (error, result) => {
+//         if (error) {
+//           logger.error("Error while uploading media to cloudinary", error);
+//           reject(error);
+//         } else {
+//           resolve(result);
+//         }
+//       },
+//     );
 
-    uploadStream.end(file.buffer);
-  });
-};
+//     uploadStream.end(file.buffer);
+//   });
+// };
 
 const deleteMediaFromCloudinary = async (publicId: any) => {
   try {
@@ -66,6 +65,7 @@ const getOptimizedImageUrl = (publicId: string, options?: any) => {
 
 export {
   deleteMediaFromCloudinary,
-  uploadMediaToCloudinary,
+  // uploadMediaToCloudinary,
   getOptimizedImageUrl,
+  cloudinary,
 };

@@ -8,6 +8,7 @@ import express from "express";
 import { requireAuth, authorize } from "../../middleware/auth";
 import {
   addAttachment,
+  attachLessonVideo,
   createLesson,
   deleteAttachment,
   deleteLesson,
@@ -68,11 +69,7 @@ router.use(authorize(["INSTRUCTOR", "ADMIN"]));
  *       201:
  *         description: Lesson created successfully
  */
-router.post(
-  "/sections/:sectionId/lessons",
-  upload.single("video"),
-  createLesson
-);
+router.post("/sections/:sectionId/lessons", createLesson);
 
 /**
  * @swagger
@@ -209,6 +206,7 @@ router.patch("/sections/:sectionId/lessons/reorder", reorderLessons);
  */
 router.post("/lessons/:id/upload-video", generateVideoUploadUrl);
 
+router.patch("/lessons/:lessonId/video", attachLessonVideo);
 /**
  * @swagger
  * /instructor/lessons/{id}/attachments:

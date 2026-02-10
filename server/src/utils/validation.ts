@@ -212,8 +212,6 @@ export const createLessonSchema = z.object({
   title: z.string().min(3).max(200),
   description: z.string().max(2000).optional().nullable().or(z.literal("")),
   type: z.enum(["VIDEO", "ARTICLE"]),
-  videoUrl: z.string().url().optional(),
-  videoDuration: z.coerce.number().int().min(0).optional(),
   articleContent: z.string().optional(),
   isFree: z
     .union([
@@ -229,8 +227,6 @@ export const updateLessonSchema = z.object({
   title: z.string().min(3).max(200).optional(),
   description: z.string().max(2000).optional().nullable().or(z.literal("")),
   type: z.enum(["VIDEO", "ARTICLE"]),
-  videoUrl: z.string().url().optional().nullable().or(z.literal("")),
-  videoDuration: z.coerce.number().int().min(0).optional().nullable(),
   articleContent: z.string().optional().nullable().or(z.literal("")),
   isFree: z
     .union([
@@ -240,6 +236,12 @@ export const updateLessonSchema = z.object({
     .optional()
     .default(false),
   isPublished: z.boolean().optional(),
+});
+
+export const attachLessonVideoSchema = z.object({
+  videoUrl: z.string().url(),
+  videoPublicId: z.string(),
+  videoDuration: z.number().int().min(0),
 });
 
 export const reorderLessonSchema = z.object({

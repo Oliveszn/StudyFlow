@@ -5,13 +5,14 @@ import { ApiError } from "../../utils/error";
 import redisService from "../../config/redis";
 import {
   addAttachmentSchema,
+  attachLessonVideoSchema,
   createLessonSchema,
   reorderLessonSchema,
   updateLessonSchema,
 } from "../../utils/validation";
 import {
+  cloudinary,
   deleteMediaFromCloudinary,
-  uploadMediaToCloudinary,
 } from "../../middleware/cloudinary";
 import logger from "../../utils/logger";
 
@@ -24,11 +25,6 @@ export const createLesson = asyncHandler(
       sectionId: req.params.sectionId,
       instructorId: req.user?.id,
     });
-
-    if (!req.body || Object.keys(req.body).length === 0) {
-      throw ApiError.badRequest("Request body is empty");
-    }
-
     const request = createLessonSchema.parse(req.body);
 
     ////verify te section exists and it belongs to the instructor's cousre
@@ -52,32 +48,15 @@ export const createLesson = asyncHandler(
         instructorId,
       });
       throw ApiError.notFound(
-        "Section not found or you do not have permission"
+        "Section not found or you do not have permission",
       );
     }
 
     if (request.type === "ARTICLE" && !request.articleContent) {
       logger.warn("Article content missing", { sectionId });
       throw ApiError.badRequest(
-        "Article content is required for article lessons"
+        "Article content is required for article lessons",
       );
-    }
-
-    let videoUrl = null;
-    let videoPublicId = null;
-    let videoDuration = null;
-
-    if (request.type === "VIDEO") {
-      logger.warn("Video file missing", { sectionId });
-      if (!req.file) {
-        throw ApiError.badRequest("Video file is required");
-      }
-
-      const uploadResult: any = await uploadMediaToCloudinary(req.file);
-
-      videoUrl = uploadResult.secure_url;
-      videoPublicId = uploadResult.public_id;
-      videoDuration = uploadResult.duration;
     }
 
     // Get the current max order for lessons in this section
@@ -96,9 +75,9 @@ export const createLesson = asyncHandler(
         type: request.type,
         sectionId,
         order: nextOrder,
-        videoUrl,
-        videoPublicId,
-        videoDuration,
+        videoUrl: null,
+        videoPublicId: null,
+        videoDuration: null,
         articleContent: request.articleContent,
         isFree: request.isFree || false,
         isPublished: false,
@@ -118,7 +97,7 @@ export const createLesson = asyncHandler(
       message: "Lesson created successfully",
       data: lesson,
     });
-  }
+  },
 );
 
 export const getLesson = asyncHandler(async (req: Request, res: Response) => {
@@ -203,7 +182,7 @@ export const updateLesson = asyncHandler(
       if (!req.file) {
         logger.warn("No video provided", { lessonId: id });
         throw ApiError.badRequest(
-          "Video file is required when changing to video lesson"
+          "Video file is required when changing to video lesson",
         );
       }
     }
@@ -211,7 +190,7 @@ export const updateLesson = asyncHandler(
     if (updateData.type === "ARTICLE" && existingLesson.type !== "ARTICLE") {
       if (!updateData.articleContent) {
         throw ApiError.badRequest(
-          "Article content is required when changing to article lesson"
+          "Article content is required when changing to article lesson",
         );
       }
 
@@ -226,20 +205,20 @@ export const updateLesson = asyncHandler(
     }
 
     ///delete old video if changing it
-    if (
-      (existingLesson.type === "VIDEO" || updateData.type === "VIDEO") &&
-      req.file
-    ) {
-      if (existingLesson.videoPublicId) {
-        await deleteMediaFromCloudinary(existingLesson.videoPublicId);
-      }
+    // if (
+    //   (existingLesson.type === "VIDEO" || updateData.type === "VIDEO") &&
+    //   req.file
+    // ) {
+    //   if (existingLesson.videoPublicId) {
+    //     await deleteMediaFromCloudinary(existingLesson.videoPublicId);
+    //   }
 
-      const uploadResult: any = await uploadMediaToCloudinary(req.file);
+    //   const uploadResult: any = await uploadMediaToCloudinary(req.file);
 
-      prismaData.videoUrl = uploadResult.secure_url;
-      prismaData.videoPublicId = uploadResult.public_id;
-      prismaData.videoDuration = uploadResult.duration;
-    }
+    //   prismaData.videoUrl = uploadResult.secure_url;
+    //   prismaData.videoPublicId = uploadResult.public_id;
+    //   prismaData.videoDuration = uploadResult.duration;
+    // }
 
     const lesson = await prisma.lesson.update({
       where: { id },
@@ -247,7 +226,7 @@ export const updateLesson = asyncHandler(
     });
 
     await redisService.del(
-      `course:${existingLesson.section.course.slug}:curriculum`
+      `course:${existingLesson.section.course.slug}:curriculum`,
     );
 
     logger.info("Lesson updated", { lessonId: id });
@@ -257,7 +236,7 @@ export const updateLesson = asyncHandler(
       message: "Lesson updated successfully",
       data: lesson,
     });
-  }
+  },
 );
 
 export const deleteLesson = asyncHandler(
@@ -324,7 +303,7 @@ export const deleteLesson = asyncHandler(
       success: true,
       message: "Lesson deleted successfully",
     });
-  }
+  },
 );
 
 export const reorderLessons = asyncHandler(
@@ -352,7 +331,7 @@ export const reorderLessons = asyncHandler(
     if (!section) {
       logger.warn("Reorder section not found", { sectionId });
       throw ApiError.notFound(
-        "Section not found or you do not have permission"
+        "Section not found or you do not have permission",
       );
     }
 
@@ -367,7 +346,7 @@ export const reorderLessons = asyncHandler(
 
     if (lessons.length !== lessonIds.length) {
       throw ApiError.badRequest(
-        "One or more lessons not found in this section"
+        "One or more lessons not found in this section",
       );
     }
 
@@ -377,8 +356,8 @@ export const reorderLessons = asyncHandler(
         prisma.lesson.update({
           where: { id: item.lessonId },
           data: { order: item.order },
-        })
-      )
+        }),
+      ),
     );
 
     ////Get the updated lessons
@@ -396,7 +375,7 @@ export const reorderLessons = asyncHandler(
       message: "Lessons reordered successfully",
       data: updatedLessons,
     });
-  }
+  },
 );
 
 export const generateVideoUploadUrl = asyncHandler(
@@ -424,32 +403,69 @@ export const generateVideoUploadUrl = asyncHandler(
       throw ApiError.badRequest("Can only upload videos to video lessons");
     }
 
-    // TODO: Integrate with your storage provider (AWS S3, Cloudinary, etc.)
-    // For now, return a mock response
+    const timestamp = Math.round(Date.now() / 1000);
 
-    // Example with AWS S3:
-    // const s3 = new AWS.S3();
-    // const key = `courses/${lesson.section.course.id}/lessons/${lesson.id}/${Date.now()}-${fileName}`;
-    // const signedUrl = await s3.getSignedUrlPromise('putObject', {
-    //   Bucket: process.env.AWS_BUCKET_NAME,
-    //   Key: key,
-    //   ContentType: fileType,
-    //   Expires: 300 // 5 minutes
-    // });
+    const folder = `courses/${lesson.sectionId}/lessons/${lesson.id}`;
 
-    const mockUploadUrl = `https://your-storage.com/upload/${id}`;
-    const mockVideoUrl = `https://your-cdn.com/videos/${id}/${fileName}`;
+    const signature = cloudinary.utils.api_sign_request(
+      {
+        timestamp,
+        folder,
+        resource_type: "video",
+      },
+      process.env.CLOUDINARY_API_SECRET!,
+    );
 
     res.status(200).json({
       success: true,
       message: "Upload URL generated successfully",
       data: {
-        uploadUrl: mockUploadUrl,
-        videoUrl: mockVideoUrl, // URL to save in database after upload
-        expiresIn: 300, // seconds
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+        apiKey: process.env.CLOUDINARY_API_KEY,
+        timestamp,
+        signature,
+        folder,
       },
     });
-  }
+  },
+);
+
+export const attachLessonVideo = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id: lessonId } = req.params;
+    const instructorId = req.user!.id;
+
+    const request = attachLessonVideoSchema.parse(req.body);
+
+    const lesson = await prisma.lesson.findFirst({
+      where: {
+        id: lessonId,
+        section: {
+          course: {
+            instructorId,
+          },
+        },
+      },
+    });
+
+    if (!lesson) {
+      throw ApiError.notFound("Lesson not found or unauthorized");
+    }
+
+    await prisma.lesson.update({
+      where: { id: lessonId },
+      data: {
+        videoUrl: request.videoUrl,
+        videoPublicId: request.videoPublicId,
+        videoDuration: request.videoDuration,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "Video attached successfully",
+    });
+  },
 );
 
 export const addAttachment = asyncHandler(
@@ -519,7 +535,7 @@ export const addAttachment = asyncHandler(
         attachment: newAttachment,
       },
     });
-  }
+  },
 );
 
 export const deleteAttachment = asyncHandler(
@@ -556,7 +572,7 @@ export const deleteAttachment = asyncHandler(
 
     ////Find and remove attachments
     const updatedAttachments = existingAttachments.filter(
-      (att: any) => att.id !== attachmentId
+      (att: any) => att.id !== attachmentId,
     );
 
     if (updatedAttachments.length === existingAttachments.length) {
@@ -577,5 +593,5 @@ export const deleteAttachment = asyncHandler(
       success: true,
       message: "Attachment deleted successfully",
     });
-  }
+  },
 );

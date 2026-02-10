@@ -36,11 +36,11 @@ const LessonRow = ({ lesson }: { lesson: Lesson }) => {
             Free
           </span>
         )}
-        {lesson.videoDuration && (
+        {/* {lesson.videoDuration && (
           <span className="text-xs text-gray-400">
             {formatDuration(lesson.videoDuration)}
           </span>
-        )}
+        )} */}
       </div>
     </div>
   );
@@ -129,7 +129,8 @@ export default function CourseCurriculumSection({
       <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
         <span className="text-sm text-gray-500">
           {sections.length} section{sections.length !== 1 ? "s" : ""} •{" "}
-          {sections.reduce((acc, s) => acc + s._count.lessons, 0)} total lessons
+          {sections.reduce((acc, s) => acc + (s._count?.lessons ?? 0), 0)} total
+          lessons
         </span>
       </div>
     </div>

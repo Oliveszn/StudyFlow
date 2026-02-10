@@ -23,9 +23,9 @@ export interface Lesson {
   type: LessonType;
   sectionId: string;
   order: number;
-  videoUrl?: string;
-  videoPublicId?: string;
-  videoDuration?: number;
+  // videoUrl?: string;
+  // videoPublicId?: string;
+  // videoDuration?: number;
   articleContent?: string;
   isFree: boolean;
   isPublished: boolean;
@@ -103,28 +103,13 @@ export const lessonApi = {
   createLesson: async (
     sectionId: string,
     payload: CreateLessonSchema,
-    videoFile?: File
   ): Promise<CreateLessonResponse> => {
-    const formData = new FormData();
-
-    for (const key in payload) {
-      const value = payload[key as keyof CreateLessonSchema];
-      if (value !== undefined && value !== null) {
-        formData.append(key, value.toString());
-      }
-    }
-
-    if (videoFile) {
-      formData.append("video", videoFile);
-    }
-
     const { data } = await apiClient.post(
       `/api/instructor/sections/${sectionId}/lessons`,
-      formData,
+      payload,
       {
-        headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
@@ -134,7 +119,7 @@ export const lessonApi = {
       `/api/instructor/lessons/${lessonId}`,
       {
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
@@ -142,7 +127,7 @@ export const lessonApi = {
   updateLesson: async (
     lessonId: string,
     payload: UpdateLessonSchema,
-    videoFile?: File
+    videoFile?: File,
   ): Promise<UpdateLessonResponse> => {
     const formData = new FormData();
 
@@ -163,7 +148,7 @@ export const lessonApi = {
       {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
@@ -173,21 +158,21 @@ export const lessonApi = {
       `/api/instructor/lessons/${lessonId}`,
       {
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
 
   reorderLessons: async (
     sectionId: string,
-    payload: ReorderLessonSchema
+    payload: ReorderLessonSchema,
   ): Promise<ReorderLessonsResponse> => {
     const { data } = await apiClient.patch(
       `/api/instructor/sections/${sectionId}/lessons/reorder`,
       payload,
       {
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
@@ -195,41 +180,66 @@ export const lessonApi = {
   generateVideoUploadUrl: async (
     lessonId: string,
     fileName: string,
-    fileType: string
-  ): Promise<VideoUploadUrlResponse> => {
+    fileType: string,
+  ): Promise<{
+    cloudName: string;
+    apiKey: string;
+    signature: string;
+    timestamp: number;
+    folder: string;
+  }> => {
     const { data } = await apiClient.post(
       `/api/instructor/lessons/${lessonId}/upload-video`,
       { fileName, fileType },
       {
         withCredentials: true,
-      }
+      },
     );
+    return data.data;
+  },
+
+  attachLessonVideo: async (
+    lessonId: string,
+    payload: {
+      videoUrl: string;
+      videoPublicId: string;
+      videoDuration: number;
+    },
+  ) => {
+    const { data } = await apiClient.post(
+      `/api/instructor/lessons/${lessonId}/video`,
+      payload,
+      {
+        withCredentials: true,
+      },
+    );
+
     return data;
   },
 
   addAttachment: async (
     lessonId: string,
-    payload: AddAttachmentSchema
+    payload: AddAttachmentSchema,
   ): Promise<AddAttachmentResponse> => {
     const { data } = await apiClient.post(
       `/api/instructor/lessons/${lessonId}/attachments`,
       payload,
       {
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
 
   deleteAttachment: async (
     lessonId: string,
-    attachmentId: string
+    attachmentId: string,
   ): Promise<DeleteAttachmentResponse> => {
     const { data } = await apiClient.delete(
       `/api/instructor/lessons/${lessonId}/attachments/${attachmentId}`,
       {
         withCredentials: true,
-      }
+      },
     );
     return data;
   },
