@@ -72,6 +72,7 @@ app.use("/api/instructor", instructorLessonRoutes);
 app.use("/api/instructor", instructorReviewRoutes);
 app.use("/api/student", studentEnrollmentRoutes);
 app.use("/api/student", studentReviewRoutes);
+app.use("/api/student", studentProgressRoutes);
 app.use("/api/student", studentWishlistRoutes);
 app.use("/api/admin/categories", adminCategoryRoutes);
 app.use("/api/payments", paymentRoutes);
