@@ -11,7 +11,7 @@ interface MyJwtPayload extends JwtPayload {
 export const requireAuth = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   let token: string | undefined;
 
@@ -26,13 +26,16 @@ export const requireAuth = async (
   }
 
   //if there aare no tokens found
-  if (!token) return next(ApiError.unauthorized("Not authenticated"));
+  if (!token)
+    return next(
+      ApiError.unauthorized("Not authenticated, Please log in to continue"),
+    );
 
   try {
     ///first verify the token
     const payload = jwt.verify(
       token,
-      process.env.ACCESS_TOKEN_SECRET as string
+      process.env.ACCESS_TOKEN_SECRET as string,
     ) as MyJwtPayload;
 
     ///load the user from db
@@ -48,7 +51,7 @@ export const requireAuth = async (
     req.user = { id: user.id, role: user.role };
     return next();
   } catch (err) {
-    return next(ApiError.unauthorized("Invalid or expired token"));
+    return next(ApiError.unauthorized("Please log in to continue"));
   }
 };
 
@@ -60,7 +63,7 @@ export const authorize = (roles: string[]) => {
 
     if (!roles.includes(req.user.role)) {
       throw ApiError.forbidden(
-        `User role '${req.user.role}' is not authorized to access this route`
+        `User role '${req.user.role}' is not authorized to access this route`,
       );
     }
 

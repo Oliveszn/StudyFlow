@@ -11,7 +11,12 @@ export const useInitializePayment = () => {
   return useMutation({
     mutationFn: (courseId: string) => paymentApi.initializePayment(courseId),
     onError: (error: any) => {
-      toast.error(error?.message || "Payment initialization failed");
+      // toast.error(error?.message || "Payment initialization failed");
+      //       if (error.response?.status === 401) {
+      //   toast.error("Please log in to continue");
+      //   router.push("/login");
+      // }
+      toast.error(error.response?.data?.message || "Something went wrong");
     },
   });
 };

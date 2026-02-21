@@ -1,4 +1,5 @@
 import ContentWrapper from "@/components/common/ContentWrapper";
+import CareerSection from "@/components/home/CareerSection";
 import CategorySection from "@/components/home/CategorySection";
 import ExperienceSection from "@/components/home/ExperienceSection";
 import HeroSection from "@/components/home/HeroSection";
@@ -12,6 +13,7 @@ export default function Home() {
         <CategorySection />
         <TrendingSection />
         <ExperienceSection />
+        <CareerSection />
       </ContentWrapper>
     </main>
   );

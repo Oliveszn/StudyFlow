@@ -23,7 +23,7 @@ const CheckAuth = ({ children }: CheckAuthProps) => {
   // Protected route prefixes
   const isStudentRoute =
     pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/courses") ||
+    // pathname.startsWith("/courses") ||
     pathname.startsWith("/my-learning");
   const isInstructorRoute = pathname.startsWith("/instructor");
   const isAdminRoute = pathname.startsWith("/admin");

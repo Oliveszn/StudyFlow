@@ -14,9 +14,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useState } from "react";
+import { useAppSelector } from "@/store/hooks";
+import NavUserDropdown from "./NavUserDropdown";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAppSelector((state) => state.auth);
   return (
     <nav
       className="st-header bg-background relative z-50 px-4 sm:px-6"
@@ -72,7 +75,7 @@ export default function Navbar() {
         </div>
 
         <div className="hidden lg:flex items-center space-x-4">
-          <Link href="/auth/login" aria-label="Go to login page">
+          {/* <Link href="/auth/login" aria-label="Go to login page">
             <Button className="bg-white text-main hover:bg-main-primary py-2.5 px-4 rounded shadow-sm flex justify-center items-center border border-main cursor-pointer transition-colors">
               Log in
             </Button>
@@ -82,7 +85,27 @@ export default function Navbar() {
             <Button className="bg-main text-white hover:bg-main-foreground py-2.5 px-4 rounded shadow-sm flex justify-center items-center cursor-pointer">
               Sign Up
             </Button>
-          </Link>
+          </Link> */}
+          {user ? (
+            <NavUserDropdown
+              firstName={user.firstName || "User"}
+              lastName={user.lastName}
+            />
+          ) : (
+            <>
+              <Link href="/auth/login">
+                <Button className="bg-white text-main hover:bg-main-primary py-2.5 px-4 rounded shadow-sm border border-main">
+                  Log in
+                </Button>
+              </Link>
+
+              <Link href="/auth/register">
+                <Button className="bg-main text-white hover:bg-main-foreground py-2.5 px-4 rounded shadow-sm">
+                  Sign Up
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
         {/* Search Icon */}
         <div className="lg:hidden flex items-center ml-auto">

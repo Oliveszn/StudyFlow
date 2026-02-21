@@ -28,6 +28,14 @@ export interface Course {
     reviews?: number;
     sections?: number;
   };
+  thumbnail?: string;
+  discountPrice?: number;
+  subtitle?: string;
+  isPublished: boolean;
+  language: string;
+  updatedAt: string;
+  requirements?: string[];
+  whatYouWillLearn?: string[];
 }
 
 export interface Pagination {
