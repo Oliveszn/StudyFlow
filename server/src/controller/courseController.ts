@@ -201,7 +201,7 @@ export const getCourseBySlug = asyncHandler(
     await redisService.set(cacheKey, JSON.stringify(response), 900); //15 mins
 
     res.status(200).json(response);
-  }
+  },
 );
 
 /**
@@ -230,31 +230,31 @@ export const getCourseCurriculum = asyncHandler(
         title: true,
         slug: true,
         sections: {
-          where: {
-            lessons: {
-              some: {
-                isPublished: true,
-              },
-            },
-          },
+          // where: {
+          //   lessons: {
+          //     some: {
+          //       isPublished: true,
+          //     },
+          //   },
+          // },
           include: {
             lessons: {
-              where: {
-                OR: [
-                  { isPublished: true, isFree: true }, ///show all published lessons or free lessons
-                  { isPublished: true },
-                ],
-              },
-              select: {
-                id: true,
-                title: true,
-                description: true,
-                type: true,
-                order: true,
-                videoDuration: true,
-                isFree: true,
-                isPublished: true,
-              },
+              // where: {
+              //   OR: [
+              //     { isPublished: true, isFree: true }, ///show all published lessons or free lessons
+              //     { isPublished: true },
+              //   ],
+              // },
+              // select: {
+              //   id: true,
+              //   title: true,
+              //   description: true,
+              //   type: true,
+              //   order: true,
+              //   videoDuration: true,
+              //   isFree: true,
+              //   isPublished: true,
+              // },
               orderBy: { order: "asc" },
             },
             _count: {
@@ -276,7 +276,7 @@ export const getCourseCurriculum = asyncHandler(
         section: {
           courseId: course.id,
         },
-        isPublished: true,
+        // isPublished: true,
       },
       _sum: {
         videoDuration: true,
@@ -291,7 +291,7 @@ export const getCourseCurriculum = asyncHandler(
         totalSections: course.sections.length,
         totalLessons: course.sections.reduce(
           (acc, section) => acc + section._count.lessons,
-          0
+          0,
         ),
       },
     };
@@ -299,7 +299,7 @@ export const getCourseCurriculum = asyncHandler(
     await redisService.set(cacheKey, JSON.stringify(response), 900); //15mins
 
     res.status(200).json(response);
-  }
+  },
 );
 
 /**
@@ -385,7 +385,7 @@ export const getCourseReviews = asyncHandler(
       },
       ratingDistribution: distribution,
     });
-  }
+  },
 );
 
 /**
@@ -435,7 +435,7 @@ export const getFeaturedCourses = asyncHandler(
     await redisService.set(cacheKey, JSON.stringify(response), 1800); //30mins
 
     res.status(200).json(response);
-  }
+  },
 );
 
 /**
@@ -510,5 +510,5 @@ export const getTrendingCourses = asyncHandler(
     await redisService.set(cacheKey, JSON.stringify(response), 3600); //1hr
 
     res.status(200).json(response);
-  }
+  },
 );
