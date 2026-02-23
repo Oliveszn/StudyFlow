@@ -37,7 +37,7 @@ export default function CourseDetailPage() {
 
   const course = courseData.data;
   const curriculum = curriculumData?.data;
-
+  console.log("curriculumData", curriculumData);
   return (
     <div className="min-h-screen bg-white">
       <CourseHero course={course} />

@@ -143,7 +143,16 @@ export default function CourseCurriculumSection({
     );
   }
 
-  if (!curriculum || !curriculum.sections.length) return null;
+  if (!curriculum || !curriculum.sections.length) {
+    return (
+      <section>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Course content
+        </h2>
+        <p className="text-gray-500 text-sm">No curriculum available yet.</p>
+      </section>
+    );
+  }
 
   const INITIAL_SHOW = 5;
   const visibleSections = showAll
@@ -154,7 +163,6 @@ export default function CourseCurriculumSection({
     <section>
       <h2 className="text-2xl font-bold text-gray-900 mb-2">Course content</h2>
 
-      {/* Stats */}
       <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mb-4">
         <span>{curriculum.totalSections} sections</span>
         <span>•</span>
@@ -172,7 +180,6 @@ export default function CourseCurriculumSection({
         )}
       </div>
 
-      {/* Sections */}
       <div className="space-y-2">
         {visibleSections.map((section, i) => (
           <SectionAccordion
@@ -183,7 +190,6 @@ export default function CourseCurriculumSection({
         ))}
       </div>
 
-      {/* Show more / less toggle */}
       {curriculum.sections.length > INITIAL_SHOW && (
         <button
           onClick={() => setShowAll(!showAll)}

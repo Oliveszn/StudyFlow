@@ -16,7 +16,9 @@ export default function CourseRequirementsSection({
         {requirements.map((req, i) => (
           <li key={i} className="flex items-start gap-3">
             <span className="mt-2 w-1.5 h-1.5 rounded-full bg-gray-600 flex-shrink-0" />
-            <span className="text-sm text-gray-700 leading-relaxed">{req}</span>
+            <span className="text-sm text-gray-700 leading-relaxed capitalize">
+              {req}
+            </span>
           </li>
         ))}
       </ul>

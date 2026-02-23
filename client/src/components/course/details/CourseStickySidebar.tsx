@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { Course } from "@/api/endpoints/courses";
 import PaymentModal from "@/components/payment/PaymentModal";
+import { Button } from "@/components/ui/button";
 
 interface CourseStickySidebarProps {
   course: Course & { lessonCount: number };
@@ -43,7 +44,6 @@ export default function CourseStickySidebar({
     <>
       <div className="lg:sticky lg:top-6">
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-lg">
-          {/* Preview Thumbnail */}
           <div className="relative w-full h-52 bg-gray-100 group cursor-pointer">
             <Image
               src={course.thumbnail || "/placeholder-course.jpg"}
@@ -51,7 +51,7 @@ export default function CourseStickySidebar({
               fill
               className="object-cover"
             />
-            {/* Play overlay */}
+
             <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center">
                 <Play
@@ -67,9 +67,7 @@ export default function CourseStickySidebar({
             </div>
           </div>
 
-          {/* Content */}
           <div className="p-5 space-y-4">
-            {/* Price */}
             <div>
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl font-bold text-gray-900">
@@ -93,26 +91,20 @@ export default function CourseStickySidebar({
               )}
             </div>
 
-            {/* CTA Buttons */}
             <div className="space-y-2">
-              <button
+              <Button
                 onClick={() => setIsPaymentModalOpen(true)}
-                className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                className="w-full py-3 bg-main text-white font-semibold rounded-lg hover:bg-main-foreground transition flex items-center justify-center gap-2"
               >
                 <ShoppingCart className="w-5 h-5" />
                 Enroll Now
-              </button>
-
-              <button className="w-full py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition text-sm">
-                Try for free
-              </button>
+              </Button>
             </div>
 
             <p className="text-xs text-gray-500 text-center">
               30-Day Money-Back Guarantee
             </p>
 
-            {/* Course Includes */}
             <div className="border-t border-gray-100 pt-4 space-y-2.5">
               <p className="text-sm font-semibold text-gray-900">
                 This course includes:
@@ -129,7 +121,6 @@ export default function CourseStickySidebar({
               <SidebarFeature icon={Award} text="Certificate of completion" />
             </div>
 
-            {/* Share / Wishlist */}
             <div className="flex items-center justify-center gap-4 pt-2 border-t border-gray-100">
               <button
                 onClick={() => setIsWishlisted(!isWishlisted)}

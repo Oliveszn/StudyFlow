@@ -16,24 +16,19 @@ export default function CourseHero({ course }: CourseHeroProps) {
   return (
     <div className="w-full bg-[#16161D] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Constrain text to left — sidebar takes the right */}
         <div className="max-w-3xl space-y-4">
-          {/* Breadcrumb */}
           {course.category && (
             <p className="text-sm text-blue-400">{course.category.name}</p>
           )}
 
-          {/* Title */}
           <h1 className="text-3xl lg:text-4xl font-bold leading-tight text-white">
             {course.title}
           </h1>
 
-          {/* Subtitle / Description */}
           {course.subtitle && (
             <p className="text-lg text-gray-300">{course.subtitle}</p>
           )}
 
-          {/* Rating Row */}
           <div className="flex flex-wrap items-center gap-3 text-sm">
             {course.averageRating > 0 && (
               <div className="flex items-center gap-1.5">
@@ -72,7 +67,6 @@ export default function CourseHero({ course }: CourseHeroProps) {
             </div>
           </div>
 
-          {/* Metadata Row */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
             <span>
               Created by{" "}
