@@ -52,7 +52,7 @@ export const getEnrollments = asyncHandler(
         pages: Math.ceil(total / Number(limit)),
       },
     });
-  }
+  },
 );
 
 export const enrollInCourse = asyncHandler(
@@ -123,7 +123,7 @@ export const enrollInCourse = asyncHandler(
       message: "Successfully enrolled in course",
       data: enrollment,
     });
-  }
+  },
 );
 
 export const getEnrollmentDetails = asyncHandler(
@@ -149,15 +149,15 @@ export const getEnrollmentDetails = asyncHandler(
             sections: {
               include: {
                 lessons: {
-                  where: { isPublished: true },
-                  select: {
-                    id: true,
-                    title: true,
-                    type: true,
-                    order: true,
-                    videoDuration: true,
-                    isFree: true,
-                  },
+                  // where: { isPublished: true },
+                  // select: {
+                  //   id: true,
+                  //   title: true,
+                  //   type: true,
+                  //   order: true,
+                  //   videoDuration: true,
+                  //   isFree: true,
+                  // },
                   orderBy: { order: "asc" },
                 },
               },
@@ -195,5 +195,5 @@ export const getEnrollmentDetails = asyncHandler(
         completedLessonIds,
       },
     });
-  }
+  },
 );
