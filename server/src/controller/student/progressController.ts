@@ -86,7 +86,7 @@ export const getCourseProgress = asyncHandler(
         lessonProgress,
       },
     });
-  }
+  },
 );
 
 export const getLesson = asyncHandler(async (req: Request, res: Response) => {
@@ -223,7 +223,7 @@ export const getLessonVideoUrl = asyncHandler(
         expiresIn: 3600, // 1 hour
       },
     });
-  }
+  },
 );
 
 export const markLessonComplete = asyncHandler(
@@ -327,7 +327,7 @@ export const markLessonComplete = asyncHandler(
         courseProgress: progressPercentage,
       },
     });
-  }
+  },
 );
 
 export const updateVideoProgress = asyncHandler(
@@ -390,7 +390,7 @@ export const updateVideoProgress = asyncHandler(
       success: true,
       data: progress,
     });
-  }
+  },
 );
 
 export const getStudentDashboard = asyncHandler(
@@ -468,5 +468,5 @@ export const getStudentDashboard = asyncHandler(
         recentlyCompleted,
       },
     });
-  }
+  },
 );

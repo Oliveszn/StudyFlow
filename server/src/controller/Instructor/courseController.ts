@@ -414,6 +414,17 @@ export const publishCourse = asyncHandler(
       );
     }
 
+    await prisma.lesson.updateMany({
+      where: {
+        section: {
+          courseId: id,
+        },
+      },
+      data: {
+        isPublished: true,
+      },
+    });
+
     const updatedCourse = await prisma.course.update({
       where: { id },
       data: {

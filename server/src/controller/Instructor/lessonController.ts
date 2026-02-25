@@ -411,7 +411,7 @@ export const generateVideoUploadUrl = asyncHandler(
       {
         timestamp,
         folder,
-        resource_type: "video",
+        // resource_type: "video",
       },
       process.env.CLOUDINARY_API_SECRET!,
     );
