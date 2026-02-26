@@ -432,7 +432,7 @@ export const generateVideoUploadUrl = asyncHandler(
 
 export const attachLessonVideo = asyncHandler(
   async (req: Request, res: Response) => {
-    const { id: lessonId } = req.params;
+    const { lessonId } = req.params;
     const instructorId = req.user!.id;
 
     const request = attachLessonVideoSchema.parse(req.body);

@@ -4,8 +4,6 @@ import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAppDispatch } from "@/store/hooks";
 import { useGetCourseDetails } from "@/hooks/endpoints/instructor/useCourses";
-import { Loader2 } from "lucide-react";
-
 import { useAppSelector } from "@/store/hooks";
 import { initializeEditMode } from "@/store/CreateCourseSlice";
 import Step1BasicInfo from "@/components/instructor/courses/CreateCourse/Step1BasicInfo";

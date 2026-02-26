@@ -3,10 +3,12 @@ import apiClient from "@/api/client";
 export interface Lesson {
   id: string;
   title: string;
-  type: "VIDEO" | "ARTICLE" | "QUIZ";
+  description: string;
+  type: "VIDEO" | "ARTICLE";
   sectionId: string;
   isFree: boolean;
   videoUrl?: string;
+  articleContent?: string;
 }
 
 export interface LessonProgress {

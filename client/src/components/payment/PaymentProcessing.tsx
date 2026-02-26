@@ -1,6 +1,7 @@
 "use client";
 
-import { Loader2, CreditCard } from "lucide-react";
+import { CreditCard } from "lucide-react";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 export default function PaymentProcessing() {
   return (
@@ -11,7 +12,7 @@ export default function PaymentProcessing() {
         </div>
 
         <div className="mb-6">
-          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <LoadingSpinner />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Processing Payment
           </h2>

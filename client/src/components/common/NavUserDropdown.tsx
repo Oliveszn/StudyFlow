@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/store/hooks";
+import React from "react";
 
 type Props = {
   firstName: string;
@@ -71,16 +72,15 @@ export default function NavUserDropdown({ firstName, lastName }: Props) {
       <DropdownMenuContent align="end" className="w-48">
         {menuItems.map((item, index) =>
           item.label === "Profile" || item.label === "Settings" ? (
-            <>
+            <React.Fragment key={item.label}>
               {index === 2 && <DropdownMenuSeparator key="sep-1" />}
               <DropdownMenuItem
-                key={item.label}
                 onClick={() => handleClick(item)}
                 className={item.danger ? "text-red-600 focus:text-red-600" : ""}
               >
                 {item.label}
               </DropdownMenuItem>
-            </>
+            </React.Fragment>
           ) : (
             <DropdownMenuItem
               key={item.label}

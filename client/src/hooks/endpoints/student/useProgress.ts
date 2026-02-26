@@ -21,6 +21,7 @@ export const useLesson = (lessonId: string) =>
     queryKey: ["lesson", lessonId],
     queryFn: () => progressApi.getLesson(lessonId),
     staleTime: 2 * 60 * 1000,
+    enabled: !!lessonId,
   });
 
 // Lesson video URL

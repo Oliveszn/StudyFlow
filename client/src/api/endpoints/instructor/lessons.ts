@@ -206,7 +206,7 @@ export const lessonApi = {
       videoDuration: number;
     },
   ) => {
-    const { data } = await apiClient.post(
+    const { data } = await apiClient.patch(
       `/api/instructor/lessons/${lessonId}/video`,
       payload,
       {

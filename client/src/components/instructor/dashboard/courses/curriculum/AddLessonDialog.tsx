@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { uploadVideoToCloudinary } from "@/utils/uploadVideoToCloudinary";
+import { toast } from "sonner";
 
 interface AddLessonDialogProps {
   isOpen: boolean;
@@ -35,7 +36,7 @@ export default function AddLessonDialog({
   sectionId,
 }: AddLessonDialogProps) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
-
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const { mutateAsync: createLesson, isPending } = useCreateLesson();
   const { mutateAsync: generateUploadUrl } = useGenerateVideoUploadUrl();
   const { mutateAsync: attachVideo } = useAttachLessonVideo();
@@ -68,17 +69,19 @@ export default function AddLessonDialog({
 
         ////if lesson type = video then upload and attach
         if (values.type === "VIDEO" && videoFile) {
+          setUploadProgress(0);
           const uploadConfig = await generateUploadUrl({
             lessonId,
             fileName: videoFile.name,
             fileType: videoFile.type,
           });
-
+          // console.log("uploadConfig", uploadConfig);
           const cloudinaryRes = await uploadVideoToCloudinary({
             file: videoFile,
             signatureData: uploadConfig,
+            onProgress: (percent) => setUploadProgress(percent),
           });
-
+          // console.log("cloudinaryRes", cloudinaryRes);
           await attachVideo({
             lessonId,
             videoUrl: cloudinaryRes.secure_url,
@@ -91,7 +94,15 @@ export default function AddLessonDialog({
         setVideoFile(null);
         onClose();
       } catch (err) {
-        console.error(err);
+        if (uploadProgress !== null) {
+          //if cloudinary upload fails
+          toast.error("Video upload failed. Please try again.");
+          setUploadProgress(null);
+        } else {
+          // if its just lesson that fails
+          toast.error("Failed to create lesson. Please try again.");
+        }
+        return;
       }
     },
   });
@@ -157,7 +168,20 @@ export default function AddLessonDialog({
               <div className="space-y-2">
                 <label className="text-sm font-medium">Video File *</label>
                 <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                  {videoFile ? (
+                  {uploadProgress !== null ? (
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-gray-700">
+                        Uploading video...
+                      </p>
+                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500">{uploadProgress}%</p>
+                    </div>
+                  ) : videoFile ? (
                     <div className="space-y-2">
                       <p className="text-sm font-medium">{videoFile.name}</p>
                       <Button
@@ -215,7 +239,11 @@ export default function AddLessonDialog({
         </div>
 
         <DialogFooter className="px-6 py-4 border-t">
-          <Button variant="ghost" onClick={onClose} disabled={isPending}>
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            disabled={isPending || uploadProgress !== null}
+          >
             Cancel
           </Button>
           <Button

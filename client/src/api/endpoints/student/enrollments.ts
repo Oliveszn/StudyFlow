@@ -33,10 +33,16 @@ export interface Section {
 export interface Lesson {
   id: string;
   title: string;
-  type: string;
+  // type: string;
+  type?: "VIDEO" | "ARTICLE";
   order: number;
   videoDuration: number;
   isFree: boolean;
+  articleContent?: string;
+  description?: string;
+  videoUrl?: string;
+  videoPublicId?: string;
+  sectionTitle?: string;
 }
 
 export interface EnrollmentListResponse {
