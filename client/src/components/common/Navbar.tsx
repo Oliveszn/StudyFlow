@@ -16,10 +16,26 @@ import {
 import { useState } from "react";
 import { useAppSelector } from "@/store/hooks";
 import NavUserDropdown from "./NavUserDropdown";
+import { useCategories } from "@/hooks/endpoints/useCategories";
+import { XIcon } from "lucide-react";
+import { getInitials } from "@/helpers/getInitials";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAppSelector((state) => state.auth);
+  const isInstructor = user?.role === "INSTRUCTOR";
+  const { data: categories, isPending } = useCategories();
+
+  // Since we filter first, add Instructor Dashboard manually for instructors
+  const finalLinks = isInstructor
+    ? [
+        ...links.filter((item) => item.name !== "Teach on StudyFlow"),
+        { name: "Instructor Dashboard", link: "/instructor/dashboard" },
+      ]
+    : links;
+
+  const initials = getInitials(user?.firstName || "User", user?.lastName);
   return (
     <nav
       className="st-header bg-background relative z-50 px-4 sm:px-6"
@@ -34,9 +50,32 @@ export default function Navbar() {
             </div>
           </SheetTrigger>
 
-          <SheetContent className="p-6">
-            <SheetHeader>
-              <SheetTitle></SheetTitle>
+          <SheetContent className="p-6 lg:hidden" showCloseButton={false}>
+            <button
+              aria-label="Close menu"
+              onClick={() => setIsOpen(false)}
+              className="absolute -left-16 top-6 size-12 rounded-full bg-white shadow-lg flex items-center justify-center transition-transform duration-200 hover:scale-105 active:scale-95"
+            >
+              <XIcon className="w-5 h-5 text-gray-700" />
+            </button>
+            <SheetHeader className="">
+              <SheetTitle className="-mx-4">
+                <div className="bg-gray-200 flex items-center gap-4 -mx-6 px-6 py-4">
+                  <Avatar className="cursor-pointer size-12">
+                    <AvatarFallback className="bg-[#16161D] text-white text-sm font-semibold">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="">
+                    <h1 className="capitalize font-[500] text-[1.4rem] leading-tight tracking-normal text-[#3B2F4F]">
+                      Hi, {user?.firstName} {user?.lastName}
+                    </h1>
+                    <p className="capitalize text-[#6B5C84] font-[300] text-[1.1rem] ">
+                      welcome back
+                    </p>
+                  </div>
+                </div>
+              </SheetTitle>
             </SheetHeader>
             <MobileNav />
           </SheetContent>
@@ -58,14 +97,39 @@ export default function Navbar() {
           role="navigation"
           aria-label="Primary"
         >
-          {links.map((items) => (
+          <div className={`relative ${!isPending ? "group" : ""}`}>
+            <button
+              className="flex items-center gap-1 text-text-primary hover:bg-main-primary hover:text-main px-3 py-2 rounded-md transition-colors whitespace-nowrap"
+              aria-haspopup="true"
+            >
+              {!isPending ? "Explore" : ""}
+            </button>
+
+            <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-gray-100 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              {categories && (
+                <ul className="py-2">
+                  {categories.map((cat) => (
+                    <li key={cat.id}>
+                      <Link
+                        href={`/categories/${cat.slug}`}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-main transition-colors"
+                      >
+                        {cat.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+          {finalLinks.map((item) => (
             <Link
-              key={items.name}
-              href={items.link}
-              aria-label={`Go to ${items.name}`}
+              key={item.name}
+              href={item.link}
+              aria-label={`Go to ${item.name}`}
               className="text-text-primary hover:bg-main-primary hover:text-main px-3 py-2 rounded-md transition-colors whitespace-nowrap"
             >
-              {items.name}
+              {item.name}
             </Link>
           ))}
 
@@ -75,21 +139,11 @@ export default function Navbar() {
         </div>
 
         <div className="hidden lg:flex items-center space-x-4">
-          {/* <Link href="/auth/login" aria-label="Go to login page">
-            <Button className="bg-white text-main hover:bg-main-primary py-2.5 px-4 rounded shadow-sm flex justify-center items-center border border-main cursor-pointer transition-colors">
-              Log in
-            </Button>
-          </Link>
-
-          <Link href="/auth/register" aria-label="Go to sign up page">
-            <Button className="bg-main text-white hover:bg-main-foreground py-2.5 px-4 rounded shadow-sm flex justify-center items-center cursor-pointer">
-              Sign Up
-            </Button>
-          </Link> */}
           {user ? (
             <NavUserDropdown
               firstName={user.firstName || "User"}
               lastName={user.lastName}
+              role={user.role}
             />
           ) : (
             <>
@@ -107,7 +161,7 @@ export default function Navbar() {
             </>
           )}
         </div>
-        {/* Search Icon */}
+
         <div className="lg:hidden flex items-center ml-auto">
           <button>
             <Search />
