@@ -12,7 +12,7 @@ export default function Home() {
         <HeroSection />
         <CategorySection />
         <TrendingSection />
-        <ExperienceSection />
+        {/* <ExperienceSection /> */}
         <CareerSection />
       </ContentWrapper>
     </main>

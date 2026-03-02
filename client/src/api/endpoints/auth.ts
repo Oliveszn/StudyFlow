@@ -9,7 +9,16 @@ export const authApi = {
       form,
       {
         withCredentials: true,
-      }
+      },
+    );
+    return response.data;
+  },
+
+  registerInstructor: async (form: RegisterSchema) => {
+    const response = await apiClient.post<AuthResponse>(
+      `/api/auth/register/instructor`,
+      form,
+      { withCredentials: true },
     );
     return response.data;
   },
@@ -20,7 +29,7 @@ export const authApi = {
       form,
       {
         withCredentials: true,
-      }
+      },
     );
     return response.data;
   },
@@ -31,7 +40,7 @@ export const authApi = {
       {},
       {
         withCredentials: true,
-      }
+      },
     );
     return response.data;
   },

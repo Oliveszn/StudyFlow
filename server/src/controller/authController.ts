@@ -71,7 +71,69 @@ export const registerUser = asyncHandler(
     } catch (error: any) {
       next(ApiError.internal(`Registration failed: ${error.message}`));
     }
-  }
+  },
+);
+
+/**
+ * @route   POST /api/auth/register
+ * @desc    Register a new instructor
+ * @access  Public
+ */
+export const registerInstructor = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      logger.info("Instructor registration endpoint hit...");
+      const request = registerUserSchema.parse(req.body);
+
+      if (!request) return next(ApiError.validation("All fields are required"));
+
+      let existingUser = await prisma.user.findUnique({
+        where: { email: request.email },
+      });
+      if (existingUser) {
+        logger.warn("User already exists");
+        throw ApiError.conflict("User already exists");
+      }
+
+      const hash = await argon2.hash(request.password);
+
+      const user = await prisma.user.create({
+        data: {
+          firstName: request.firstName,
+          lastName: request.lastName,
+          email: request.email,
+          password: hash,
+          role: "INSTRUCTOR",
+        },
+      });
+
+      logger.info("Instructor saved successfully", user.id);
+
+      const accessToken = generateAccessToken(res, user.id, user.role);
+      const refreshToken = generateRefreshToken(res, user.id, user.role);
+
+      res.status(201).json({
+        success: true,
+        message: "Instructor account created successfully, Welcome!",
+        data: {
+          user: {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            isEmailVerified: user.isEmailVerified,
+            role: user.role,
+          },
+          accessToken,
+          refreshToken,
+        },
+      });
+    } catch (error: any) {
+      next(
+        ApiError.internal(`Instructor registration failed: ${error.message}`),
+      );
+    }
+  },
 );
 
 /**
@@ -93,7 +155,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 
     const isPasswordMatch = await argon2.verify(
       user.password,
-      request.password
+      request.password,
     );
 
     if (!isPasswordMatch)
@@ -145,7 +207,7 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
     try {
       payload = jwt.verify(
         refreshToken,
-        process.env.REFRESH_TOKEN_SECRET as string
+        process.env.REFRESH_TOKEN_SECRET as string,
       ) as MyJwtPayload & { userId: string; userRole?: string };
     } catch (e) {
       return next(ApiError.unauthorized("Invalid refresh token"));
@@ -230,7 +292,7 @@ export const getMe = asyncHandler(async (req, res, next) => {
 export const healthCheck = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const startTime = Date.now();

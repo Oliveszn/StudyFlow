@@ -74,6 +74,7 @@ import {
   refreshToken,
   logoutUser,
   getMe,
+  registerInstructor,
 } from "../controller/authController";
 import { requireAuth } from "../middleware/auth";
 import { authLimiter } from "../middleware/rateLimit";
@@ -103,7 +104,7 @@ const router = express.Router();
  *         description: Validation error
  */
 router.post("/register", authLimiter, registerUser);
-
+router.post("/register/instructor", registerInstructor);
 /**
  * @swagger
  * /auth/login:

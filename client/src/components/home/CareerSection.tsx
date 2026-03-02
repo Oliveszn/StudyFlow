@@ -3,11 +3,11 @@ import { Button } from "../ui/button";
 
 export default function CareerSection() {
   return (
-    <section className="w-full px-4 sm:px-6 lg:px-8 py-16">
+    <section className="w-full px-4 sm:px-6 lg:px-8 py-12">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-[#202230] flex flex-col md:flex-row rounded-xl overflow-hidden">
-          <div className="md:w-1/2 p-10 space-y-6 flex flex-col justify-center">
-            <h1 className="text-3xl md:text-4xl font-semibold text-white leading-tight">
+        <div className="bg-[#202230] flex flex-col md:flex-row gap-4 p-6 md:p-8 rounded-xl overflow-hidden">
+          <div className="md:w-1/2 md:p-8 space-y-6 flex flex-col justify-center">
+            <h1 className="text-2xl md:text-4xl font-semibold text-white leading-tight">
               Reimagine your career in the AI era
             </h1>
 
@@ -16,7 +16,7 @@ export default function CareerSection() {
               variety of fresh content from real-world experts.
             </p>
 
-            <ul className="grid grid-cols-2 gap-3 text-sm text-gray-200">
+            <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-sm text-gray-200">
               <li>• Learn AI and more</li>
               <li>• Prep for a certification</li>
               <li>• Advance your career</li>
@@ -24,7 +24,7 @@ export default function CareerSection() {
             </ul>
 
             <div>
-              <Button className="bg-white text-black hover:bg-gray-200 px-6 py-3 rounded-md font-medium">
+              <Button className="bg-white text-black hover:bg-gray-200 px-6 py-3 rounded-md font-medium w-full">
                 Start your Career
               </Button>
             </div>

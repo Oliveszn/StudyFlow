@@ -1,4 +1,5 @@
 import { BookOpen, DollarSign, Users } from "lucide-react";
+import Link from "next/link";
 
 export default function BecomeInstructorPage() {
   return (
@@ -11,9 +12,12 @@ export default function BecomeInstructorPage() {
           <p className="text-xl md:text-2xl text-gray-600 mb-8">
             Become an instructor and change lives — including your own
           </p>
-          <button className="bg-main hover:bg-main-foreground text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors">
+          <Link
+            href={"/auth/register/instructor"}
+            className="bg-main hover:bg-main-foreground text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors"
+          >
             Get Started
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -74,9 +78,12 @@ export default function BecomeInstructorPage() {
           <p className="text-xl md:text-2xl text-gray-600 mb-8">
             Join one of the world's largest online learning marketplaces.
           </p>
-          <button className="bg-main hover:bg-main-foreground text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors">
+          <Link
+            href={"/auth/register/instructor"}
+            className="bg-main hover:bg-main-foreground text-white font-semibold px-8 py-4 rounded-lg text-lg transition-colors"
+          >
             Get Started
-          </button>
+          </Link>
         </div>
       </section>
     </main>

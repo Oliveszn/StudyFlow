@@ -24,7 +24,7 @@ export const useRegister = () => {
             user: data.data.user,
             accessToken: data.data.accessToken,
             refreshToken: data.data.refreshToken,
-          })
+          }),
         );
         if (typeof window !== "undefined") {
           localStorage.setItem("accessToken", data.data.accessToken);
@@ -34,6 +34,43 @@ export const useRegister = () => {
         queryClient.invalidateQueries({ queryKey: ["authstatus"] });
 
         router.push("/dashboard");
+      }
+    },
+
+    onError: (error: unknown) => {
+      const message = handleApiError(error);
+      toast.error(message);
+    },
+  });
+};
+
+export const useRegisterInstructor = () => {
+  const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (form: RegisterSchema) => authApi.registerInstructor(form),
+
+    onSuccess: (data) => {
+      toast.success(data.message);
+
+      if (data.success && data.data.user) {
+        dispatch(
+          setAuth({
+            user: data.data.user,
+            accessToken: data.data.accessToken,
+            refreshToken: data.data.refreshToken,
+          }),
+        );
+        if (typeof window !== "undefined") {
+          localStorage.setItem("accessToken", data.data.accessToken);
+          localStorage.setItem("refreshToken", data.data.refreshToken);
+        }
+
+        queryClient.invalidateQueries({ queryKey: ["authstatus"] });
+
+        router.push("/instructor/dashboard");
       }
     },
 
@@ -61,7 +98,7 @@ export const useLogin = () => {
             user: data.data.user,
             accessToken: data.data.accessToken,
             refreshToken: data.data.refreshToken,
-          })
+          }),
         );
         if (typeof window !== "undefined") {
           localStorage.setItem("accessToken", data.data.accessToken);
@@ -119,7 +156,7 @@ export const useCheckAuth = () => {
           dispatch(
             setAuth({
               user: data.user,
-            })
+            }),
           );
         } else {
           dispatch(clearAuth());
