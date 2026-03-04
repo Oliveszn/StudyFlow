@@ -27,7 +27,7 @@ export const initializePayment = asyncHandler(
 
     if (!user) {
       throw ApiError.notFound(
-        "User not found, Make sure you're logged in to purchase"
+        "User not found, Make sure you're logged in to purchase",
       );
     }
 
@@ -46,13 +46,13 @@ export const initializePayment = asyncHandler(
 
     if (!course) {
       throw ApiError.notFound(
-        "Course not found, Try purchasing an existing course"
+        "Course not found, Try purchasing an existing course",
       );
     }
 
     if (!course.isPublished) {
       throw ApiError.badRequest(
-        "This course is not available for enrollment, Please check back later"
+        "This course is not available for enrollment, Please check back later",
       );
     }
 
@@ -68,13 +68,50 @@ export const initializePayment = asyncHandler(
 
     if (existingEnrollment) {
       throw ApiError.badRequest(
-        "You are already enrolled in this course, You can't purchase a course twice"
+        "You are already enrolled in this course, You can't purchase a course twice",
       );
     }
 
     /////Calc the amount, use discount if available
     const amount = course.discountPrice || course.price;
 
+    //if its a free course, thats amount === 0
+    if (Number(amount) === 0) {
+      const enrollment = await prisma.$transaction(async (tx) => {
+        const newEnrollment = await tx.enrollment.create({
+          data: {
+            userId,
+            courseId,
+            pricePaid: amount,
+            currency: course.currency,
+            status: "ACTIVE",
+          },
+        });
+
+        await tx.course.update({
+          where: { id: courseId },
+          data: { enrollmentCount: { increment: 1 } },
+        });
+
+        await tx.wishlist.deleteMany({
+          where: { userId, courseId },
+        });
+
+        return newEnrollment;
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Successfully enrolled in free course",
+        data: {
+          enrolled: true,
+          free: true,
+          enrollment,
+        },
+      });
+    }
+
+    ///paid course, proceed
     /////Convert to kobo
     const amountInKobo = Number(amount) * 100;
 
@@ -137,7 +174,7 @@ export const initializePayment = asyncHandler(
         currency: course.currency,
       },
     });
-  }
+  },
 );
 
 ////VERIFY PAYMENT AND COMPLETE ENROLLMENT
@@ -156,7 +193,7 @@ export const verifyPayment = asyncHandler(
 
     if (!transaction) {
       throw ApiError.notFound(
-        "Transaction not found, Please make the payment again"
+        "Transaction not found, Please make the payment again",
       );
     }
 
@@ -172,13 +209,12 @@ export const verifyPayment = asyncHandler(
     }
 
     ////Verify the paymnet with mercahnct
-    const paystackVerification = await paystackService.verifyTransaction(
-      reference
-    );
+    const paystackVerification =
+      await paystackService.verifyTransaction(reference);
 
     if (!paystackVerification.status) {
       throw ApiError.badRequest(
-        "Payment verification failed, Please try again"
+        "Payment verification failed, Please try again",
       );
     }
 
@@ -198,7 +234,7 @@ export const verifyPayment = asyncHandler(
       });
 
       throw ApiError.badRequest(
-        "Payment was not successful, Please try again later"
+        "Payment was not successful, Please try again later",
       );
     }
 
@@ -265,7 +301,7 @@ export const verifyPayment = asyncHandler(
         enrolled: true,
       },
     });
-  }
+  },
 );
 
 ///PAYSTACK WEBHOOKS
@@ -297,12 +333,12 @@ export const paystackWebhook = asyncHandler(
 
       default:
         logger.warn(
-          `Unhandled webhook event, Something went wrong: ${event.event}`
+          `Unhandled webhook event, Something went wrong: ${event.event}`,
         );
     }
 
     res.status(200).json({ status: "success" });
-  }
+  },
 );
 
 ////GET TRANSACTION DETAILS
@@ -329,7 +365,7 @@ export const getTransactionDetails = asyncHandler(
 
     if (!transaction) {
       throw ApiError.notFound(
-        "Transaction not found, Please click a valid transaction"
+        "Transaction not found, Please click a valid transaction",
       );
     }
 
@@ -337,7 +373,7 @@ export const getTransactionDetails = asyncHandler(
       success: true,
       data: transaction,
     });
-  }
+  },
 );
 
 ////GET USERS TRANSACTION HISTORY
@@ -384,5 +420,5 @@ export const getTransactionHistory = asyncHandler(
         pages: Math.ceil(total / Number(limit)),
       },
     });
-  }
+  },
 );
