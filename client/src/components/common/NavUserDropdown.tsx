@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/store/hooks";
 import React from "react";
 import { getInitials } from "@/helpers/getInitials";
+import { useLogout } from "@/hooks/endpoints/useAuth";
 
 type Props = {
   firstName: string;
@@ -22,7 +23,7 @@ type Props = {
 export default function NavUserDropdown({ firstName, lastName, role }: Props) {
   const router = useRouter();
   const isInstructor = role === "INSTRUCTOR";
-
+  const { mutate, isPending } = useLogout();
   const initials = getInitials(firstName, lastName);
 
   const allMenuItems: {
@@ -41,6 +42,7 @@ export default function NavUserDropdown({ firstName, lastName, role }: Props) {
       label: "Log out",
       danger: true,
       onClick: () => {
+        mutate();
         router.push("/");
       },
     },

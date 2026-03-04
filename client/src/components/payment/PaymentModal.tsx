@@ -22,15 +22,30 @@ export default function PaymentModal({
 
   if (!isOpen) return null;
 
-  const finalPrice = Number(course.discountPrice ?? course.price);
+  // const finalPrice = Number(course.discountPrice ?? course.price);
+  const finalPrice =
+    course.discountPrice && Number(course.discountPrice) > 0
+      ? Number(course.discountPrice)
+      : Number(course.price);
+  // const hasDiscount =course.discountPrice && course.discountPrice < course.price;
   const hasDiscount =
-    course.discountPrice && course.discountPrice < course.price;
+    course.discountPrice &&
+    course.discountPrice > 0 &&
+    course.discountPrice < course.price;
+  const isFree = finalPrice === 0;
 
   const handlePayment = () => {
     initializePayment(course.id, {
       onSuccess: (data) => {
         // Redirect to Paystack payment page
-        window.location.href = data.data.authorizationUrl;
+        // window.location.href = data.data.authorizationUrl;
+        if (data.data.free) {
+          // Free course — go straight to course page
+          onClose();
+          router.push(`/courses/${course.slug}/learn`);
+        } else {
+          window.location.href = data.data.authorizationUrl;
+        }
       },
     });
   };
@@ -74,7 +89,10 @@ export default function PaymentModal({
                     : "font-semibold text-gray-900"
                 }
               >
-                ₦{Number(course.price).toFixed(2)}
+                {/* ₦{Number(course.price).toFixed(2)} */}
+                {Number(course.price) === 0
+                  ? "Free"
+                  : `₦${Number(course.price).toFixed(2)}`}
               </span>
             </div>
 
@@ -89,7 +107,10 @@ export default function PaymentModal({
                 <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
                   <span className="text-gray-900 font-semibold">Total</span>
                   <span className="text-2xl font-bold text-gray-900">
-                    ₦{finalPrice.toFixed(2)}
+                    {/* ₦{finalPrice.toFixed(2)} */}
+                    {Number(finalPrice) === 0
+                      ? "Free"
+                      : `₦${Number(finalPrice).toFixed(2)}`}
                   </span>
                 </div>
               </>
@@ -99,21 +120,28 @@ export default function PaymentModal({
               <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
                 <span className="text-gray-900 font-semibold">Total</span>
                 <span className="text-2xl font-bold text-gray-900">
-                  ₦{finalPrice.toFixed(2)}
+                  {/* ₦{finalPrice.toFixed(2)} */}
+                  {Number(finalPrice) === 0
+                    ? "Free"
+                    : `₦${Number(finalPrice).toFixed(2)}`}
                 </span>
               </div>
             )}
           </div>
 
-          <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-            <Lock className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <p className="text-blue-900 font-medium mb-0.5">Secure Payment</p>
-              <p className="text-blue-700">
-                You'll be redirected to Paystack's secure payment page
-              </p>
+          {!isFree && (
+            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+              <Lock className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="text-blue-900 font-medium mb-0.5">
+                  Secure Payment
+                </p>
+                <p className="text-blue-700">
+                  You'll be redirected to Paystack's secure payment page
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="space-y-2 pt-2">
             <button
@@ -129,7 +157,9 @@ export default function PaymentModal({
               ) : (
                 <>
                   <CreditCard className="w-5 h-5" />
-                  <span>Proceed to Payment</span>
+                  <span>
+                    {isFree ? "Enroll for Free" : "Proceed to Payment"}
+                  </span>
                 </>
               )}
             </button>

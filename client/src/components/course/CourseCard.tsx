@@ -55,7 +55,8 @@ export default function CourseCard({ course }: CourseCardProps) {
     whatYouWillLearn,
   } = course;
 
-  const finalPrice = discountPrice ?? price;
+  // const finalPrice = discountPrice ?? price;
+  const finalPrice = discountPrice && Number(discountPrice) > 0 ? Number(discountPrice) : Number(price);
 
   const rating = averageRating ?? 1.0;
 
@@ -100,9 +101,14 @@ export default function CourseCard({ course }: CourseCardProps) {
 
               {/* Price */}
               <div className="flex items-center gap-2 pt-1">
-                <span className="font-bold text-sm">₦{finalPrice}</span>
+                <span className="font-bold text-sm">
+                  {/* {finalPrice === 0
+                    ? "Free"
+                    : `₦${finalPrice.toLocaleString()}`} */}
+                    {Number(finalPrice) === 0 ? "Free" : `₦${Number(finalPrice).toLocaleString()}`}
+                </span>
 
-                {discountPrice && (
+                {discountPrice && discountPrice > 0 && (
                   <span className="text-xs text-muted-foreground line-through">
                     ₦{price.toLocaleString()}
                   </span>

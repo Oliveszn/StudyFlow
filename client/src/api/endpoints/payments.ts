@@ -10,6 +10,7 @@ export interface PaymentInitializationResponse {
     accessCode: string;
     amount: number;
     currency: string;
+    free?: boolean;
   };
 }
 
