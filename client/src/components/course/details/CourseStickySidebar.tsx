@@ -15,6 +15,11 @@ import {
 import type { Course } from "@/api/endpoints/courses";
 import PaymentModal from "@/components/payment/PaymentModal";
 import { Button } from "@/components/ui/button";
+import {
+  useAddToWishlist,
+  useCheckWishlist,
+  useRemoveFromWishlist,
+} from "@/hooks/endpoints/student/useWishlist";
 
 interface CourseStickySidebarProps {
   course: Course & { lessonCount: number };
@@ -30,15 +35,19 @@ const SidebarFeature = ({ icon: Icon, text }: { icon: any; text: string }) => (
 export default function CourseStickySidebar({
   course,
 }: CourseStickySidebarProps) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const { data: wishlistData } = useCheckWishlist(course.id);
+  const { mutate: addToWishlist, isPending: isAdding } = useAddToWishlist();
+  const { mutate: removeFromWishlist, isPending: isRemoving } =
+    useRemoveFromWishlist();
 
-  // const finalPrice = Number(course.discountPrice ?? course.price);
+  const isWishlisted = wishlistData?.data?.inWishlist ?? false;
+  const isLoading = isAdding || isRemoving;
+
   const finalPrice =
     course.discountPrice && Number(course.discountPrice) > 0
       ? Number(course.discountPrice)
       : Number(course.price);
-  // const hasDiscount = course.discountPrice && course.discountPrice < course.price;
 
   const hasDiscount =
     course.discountPrice &&
@@ -47,7 +56,13 @@ export default function CourseStickySidebar({
   const discountPercent = hasDiscount
     ? Math.round(((course.price - course.discountPrice!) / course.price) * 100)
     : 0;
-
+  const handleWishlist = () => {
+    if (isWishlisted) {
+      removeFromWishlist(course.id);
+    } else {
+      addToWishlist(course.id);
+    }
+  };
   return (
     <>
       <div className="lg:sticky lg:top-6">
@@ -79,10 +94,6 @@ export default function CourseStickySidebar({
             <div>
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl font-bold text-gray-900">
-                  {/* ₦{finalPrice.toFixed(2)} */}
-                  {/* {finalPrice === 0
-                    ? "Free"
-                    : `₦${Number(finalPrice).toFixed(2)}`} */}
                   {Number(finalPrice) === 0
                     ? "Free"
                     : `₦${Number(finalPrice).toFixed(2)}`}
@@ -136,7 +147,7 @@ export default function CourseStickySidebar({
             </div>
 
             <div className="flex items-center justify-center gap-4 pt-2 border-t border-gray-100">
-              <button
+              {/* <button
                 onClick={() => setIsWishlisted(!isWishlisted)}
                 className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-red-500 transition"
               >
@@ -146,6 +157,18 @@ export default function CourseStickySidebar({
                   color={isWishlisted ? "#ef4444" : "currentColor"}
                 />
                 Wishlist
+              </button> */}
+              <button
+                onClick={handleWishlist}
+                disabled={isLoading}
+                className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-red-500 transition disabled:opacity-50"
+              >
+                <Heart
+                  className="w-4 h-4"
+                  fill={isWishlisted ? "#ef4444" : "none"}
+                  color={isWishlisted ? "#ef4444" : "currentColor"}
+                />
+                {isWishlisted ? "Wishlisted" : "Wishlist"}
               </button>
               <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600 transition">
                 <Share2 className="w-4 h-4" />

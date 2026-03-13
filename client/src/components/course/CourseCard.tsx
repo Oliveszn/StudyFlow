@@ -14,6 +14,11 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { getFormattedDate } from "@/helpers/dateFormatter";
+import {
+  useAddToWishlist,
+  useCheckWishlist,
+  useRemoveFromWishlist,
+} from "@/hooks/endpoints/student/useWishlist";
 
 interface Instructor {
   id: string;
@@ -55,12 +60,31 @@ export default function CourseCard({ course }: CourseCardProps) {
     whatYouWillLearn,
   } = course;
 
-  // const finalPrice = discountPrice ?? price;
-  const finalPrice = discountPrice && Number(discountPrice) > 0 ? Number(discountPrice) : Number(price);
+  const { data: wishlistData } = useCheckWishlist(course.id);
+  const { mutate: addToWishlist, isPending: isAdding } = useAddToWishlist();
+  const { mutate: removeFromWishlist, isPending: isRemoving } =
+    useRemoveFromWishlist();
+
+  const isWishlisted = wishlistData?.data?.inWishlist ?? false;
+  const isLoading = isAdding || isRemoving;
+
+  const finalPrice =
+    discountPrice && Number(discountPrice) > 0
+      ? Number(discountPrice)
+      : Number(price);
 
   const rating = averageRating ?? 1.0;
 
   const formattedDate = getFormattedDate(updatedAt);
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isWishlisted) {
+      removeFromWishlist(course.id);
+    } else {
+      addToWishlist(course.id);
+    }
+  };
   return (
     <HoverCard openDelay={200} closeDelay={100}>
       <HoverCardTrigger asChild>
@@ -105,7 +129,9 @@ export default function CourseCard({ course }: CourseCardProps) {
                   {/* {finalPrice === 0
                     ? "Free"
                     : `₦${finalPrice.toLocaleString()}`} */}
-                    {Number(finalPrice) === 0 ? "Free" : `₦${Number(finalPrice).toLocaleString()}`}
+                  {Number(finalPrice) === 0
+                    ? "Free"
+                    : `₦${Number(finalPrice).toLocaleString()}`}
                 </span>
 
                 {discountPrice && discountPrice > 0 && (
@@ -158,8 +184,20 @@ export default function CourseCard({ course }: CourseCardProps) {
             Enroll Now
           </Button>
 
-          <Button variant="outline" size="icon">
+          {/* <Button variant="outline" size="icon">
             <Heart className="w-4 h-4" />
+          </Button> */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleWishlist}
+            disabled={isLoading}
+          >
+            <Heart
+              className="w-4 h-4"
+              fill={isWishlisted ? "#ef4444" : "none"}
+              color={isWishlisted ? "#ef4444" : "currentColor"}
+            />
           </Button>
         </div>
       </HoverCardContent>

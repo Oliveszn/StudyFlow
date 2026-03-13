@@ -16,32 +16,52 @@ export const useWishlist = (params?: { page?: number; limit?: number }) => {
   });
 };
 
-// Add course to wishlist
 export const useAddToWishlist = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (courseId: string) => wishlistApi.addToWishlist(courseId),
-    onSuccess: () => {
+    onMutate: async (courseId) => {
+      await queryClient.cancelQueries({
+        queryKey: ["wishlist-check", courseId],
+      });
+      queryClient.setQueryData(["wishlist-check", courseId], {
+        data: { inWishlist: true },
+      });
+    },
+    onSuccess: (_, courseId) => {
       toast.success("Course added to wishlist");
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+      queryClient.invalidateQueries({ queryKey: ["wishlist-check", courseId] });
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "Failed to add to wishlist");
+    onError: (error: any, courseId) => {
+      queryClient.invalidateQueries({ queryKey: ["wishlist-check", courseId] }); // revert
+      toast.error(error.response?.data?.message || "Failed to add to wishlist");
     },
   });
 };
 
-// Remove course from wishlist
 export const useRemoveFromWishlist = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (courseId: string) => wishlistApi.removeFromWishlist(courseId),
-    onSuccess: () => {
+    onMutate: async (courseId) => {
+      await queryClient.cancelQueries({
+        queryKey: ["wishlist-check", courseId],
+      });
+      queryClient.setQueryData(["wishlist-check", courseId], {
+        data: { inWishlist: false },
+      });
+    },
+    onSuccess: (_, courseId) => {
       toast.success("Course removed from wishlist");
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+      queryClient.invalidateQueries({ queryKey: ["wishlist-check", courseId] });
     },
-    onError: (error: any) => {
-      toast.error(error?.message || "Failed to remove from wishlist");
+    onError: (error: any, courseId) => {
+      queryClient.invalidateQueries({ queryKey: ["wishlist-check", courseId] }); // revert
+      toast.error(
+        error.response?.data?.message || "Failed to remove from wishlist",
+      );
     },
   });
 };
