@@ -1,6 +1,7 @@
 import express from "express";
 import { requireAuth, authorize } from "../../middleware/auth";
 import {
+  checkEnrollment,
   enrollInCourse,
   getEnrollmentDetails,
   getEnrollments,
@@ -13,5 +14,6 @@ router.use(authorize(["STUDENT"]));
 router.get("/enrollments", getEnrollments);
 router.post("/enrollments", removeFromWishlistOnEnrollment, enrollInCourse);
 router.get("/enrollments/:id", getEnrollmentDetails);
+router.get("/enrollments/check/:courseId", checkEnrollment);
 
 export default router;

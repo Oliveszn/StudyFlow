@@ -197,3 +197,25 @@ export const getEnrollmentDetails = asyncHandler(
     });
   },
 );
+
+export const checkEnrollment = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { courseId } = req.params;
+
+    const enrollment = await prisma.enrollment.findUnique({
+      where: {
+        userId_courseId: { userId, courseId },
+      },
+      select: { id: true, status: true },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        isEnrolled: !!enrollment,
+        enrollmentId: enrollment?.id || null,
+      },
+    });
+  },
+);
