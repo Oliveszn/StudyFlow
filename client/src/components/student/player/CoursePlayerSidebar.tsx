@@ -47,7 +47,7 @@ export default function CoursePlayerSidebar({
       return next;
     });
   };
-  // console.log(sectionLessons)
+
   return (
     <aside className="flex w-80 flex-shrink-0 flex-col overflow-hidden border-l border-white/5 bg-[#0a0a0d] xl:w-96">
       <div className="border-b border-white/5 px-5 py-4">

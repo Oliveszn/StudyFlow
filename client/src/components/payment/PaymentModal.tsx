@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { X, ShoppingCart, Lock, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useInitializePayment } from "@/hooks/endpoints/usePayments";
@@ -22,12 +21,11 @@ export default function PaymentModal({
 
   if (!isOpen) return null;
 
-  // const finalPrice = Number(course.discountPrice ?? course.price);
   const finalPrice =
     course.discountPrice && Number(course.discountPrice) > 0
       ? Number(course.discountPrice)
       : Number(course.price);
-  // const hasDiscount =course.discountPrice && course.discountPrice < course.price;
+
   const hasDiscount =
     course.discountPrice &&
     course.discountPrice > 0 &&
@@ -37,12 +35,9 @@ export default function PaymentModal({
   const handlePayment = () => {
     initializePayment(course.id, {
       onSuccess: (data) => {
-        // Redirect to Paystack payment page
-        // window.location.href = data.data.authorizationUrl;
         if (data.data.free) {
-          // Free course — go straight to course page
           onClose();
-          router.push(`/courses/${course.slug}/learn`);
+          router.push(`/learn/${course.id}`);
         } else {
           window.location.href = data.data.authorizationUrl;
         }
@@ -89,7 +84,6 @@ export default function PaymentModal({
                     : "font-semibold text-gray-900"
                 }
               >
-                {/* ₦{Number(course.price).toFixed(2)} */}
                 {Number(course.price) === 0
                   ? "Free"
                   : `₦${Number(course.price).toFixed(2)}`}

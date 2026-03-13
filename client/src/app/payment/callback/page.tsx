@@ -44,9 +44,8 @@ export default function PaymentCallbackPage() {
     return (
       <PaymentSuccess
         transaction={transactionData?.transaction}
-        // onContinue={() => router.push("/my-courses")}
         onContinue={() => {
-          router.push("/");
+          router.push("/my-learning");
         }}
       />
     );

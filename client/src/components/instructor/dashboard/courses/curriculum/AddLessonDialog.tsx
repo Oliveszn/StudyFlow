@@ -75,13 +75,13 @@ export default function AddLessonDialog({
             fileName: videoFile.name,
             fileType: videoFile.type,
           });
-          // console.log("uploadConfig", uploadConfig);
+
           const cloudinaryRes = await uploadVideoToCloudinary({
             file: videoFile,
             signatureData: uploadConfig,
             onProgress: (percent) => setUploadProgress(percent),
           });
-          // console.log("cloudinaryRes", cloudinaryRes);
+
           await attachVideo({
             lessonId,
             videoUrl: cloudinaryRes.secure_url,

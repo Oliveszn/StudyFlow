@@ -94,7 +94,6 @@ export default function CoursePlayerPage() {
 
   const course = enrollment.data?.course;
   const isArticle = activeLesson?.type === "ARTICLE";
-  console.log(allLessons);
   return (
     <div className="flex min-h-screen flex-col bg-[#0e0e11] text-white">
       <CoursePlayerHeader

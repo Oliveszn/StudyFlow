@@ -309,8 +309,6 @@ export const healthCheck = async (
       environment: process.env.NODE_ENV || "development",
     });
   } catch (error: any) {
-    console.error("Health check failed:", error);
-
     res.status(503).json({
       status: "unhealthy",
       timestamp: new Date().toISOString(),

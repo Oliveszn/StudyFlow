@@ -33,7 +33,9 @@ export const persistCreateCourseMiddleware: Middleware =
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
         } catch (e) {
-          console.error("[createCourse] Failed to persist state:", e);
+          if (process.env.NODE_ENV === "development") {
+            console.error("[createCourse] Failed to persist state:", e);
+          }
         }
       }, 300);
     }
@@ -54,7 +56,10 @@ export const loadPersistedData = (): {
     if (!raw) return null;
     return JSON.parse(raw);
   } catch (e) {
-    console.error("[createCourse] Failed to load persisted state:", e);
+    if (process.env.NODE_ENV === "development") {
+      console.error("[createCourse] Failed to load persisted state:", e);
+    }
+
     return null;
   }
 };
@@ -65,6 +70,8 @@ export const clearPersistedData = () => {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (e) {
-    console.error("[createCourse] Failed to clear persisted state:", e);
+    if (process.env.NODE_ENV === "development") {
+      console.error("[createCourse] Failed to clear persisted state:", e);
+    }
   }
 };

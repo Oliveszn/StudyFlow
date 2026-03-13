@@ -20,7 +20,6 @@ export default function CategoryCourseGrid({ loading, courses }: Props) {
   if (!courses.length) {
     return <p>No courses found.</p>;
   }
-  console.log(courses);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
