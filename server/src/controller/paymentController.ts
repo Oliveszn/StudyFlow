@@ -73,7 +73,10 @@ export const initializePayment = asyncHandler(
     }
 
     /////Calc the amount, use discount if available
-    const amount = course.discountPrice || course.price;
+    const amount =
+      course.discountPrice && Number(course.discountPrice) > 0
+        ? course.discountPrice
+        : course.price;
 
     //if its a free course, thats amount === 0
     if (Number(amount) === 0) {
