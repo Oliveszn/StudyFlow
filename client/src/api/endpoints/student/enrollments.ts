@@ -91,4 +91,16 @@ export const enrollmentApi = {
     );
     return data;
   },
+
+  checkEnrollment: async (
+    courseId: string,
+  ): Promise<{
+    success: boolean;
+    data: { isEnrolled: boolean; enrollmentId: string | null };
+  }> => {
+    const { data } = await apiClient.get(
+      `/api/student/enrollments/check/${courseId}`,
+    );
+    return data;
+  },
 };

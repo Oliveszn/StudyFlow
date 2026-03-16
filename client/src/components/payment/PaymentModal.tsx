@@ -3,12 +3,18 @@
 import { X, ShoppingCart, Lock, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useInitializePayment } from "@/hooks/endpoints/usePayments";
-import type { Course } from "@/api/endpoints/courses";
+
+interface PaymentModalCourse {
+  id: string;
+  title: string;
+  price: number;
+  discountPrice?: number | null;
+}
 
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  course: Course & { lessonCount?: number };
+  course: PaymentModalCourse;
 }
 
 export default function PaymentModal({

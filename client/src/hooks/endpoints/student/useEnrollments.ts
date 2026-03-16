@@ -1,10 +1,17 @@
-import { enrollmentApi, EnrollmentDetailsResponse, EnrollmentListResponse } from "@/api/endpoints/student/enrollments";
+import {
+  enrollmentApi,
+  EnrollmentDetailsResponse,
+  EnrollmentListResponse,
+} from "@/api/endpoints/student/enrollments";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-
 // Fetch user enrollments
-export const useEnrollments = (params?: { status?: string; page?: number; limit?: number }) => {
+export const useEnrollments = (params?: {
+  status?: string;
+  page?: number;
+  limit?: number;
+}) => {
   return useQuery<EnrollmentListResponse>({
     queryKey: ["enrollments", params],
     queryFn: () => enrollmentApi.getEnrollments(params),
@@ -35,5 +42,14 @@ export const useEnrollmentDetails = (id: string) => {
     queryFn: () => enrollmentApi.getEnrollmentDetails(id),
     staleTime: 5 * 60 * 1000,
     retry: 2,
+  });
+};
+
+export const useCheckEnrollment = (courseId: string) => {
+  return useQuery({
+    queryKey: ["enrollment-check", courseId],
+    queryFn: () => enrollmentApi.checkEnrollment(courseId),
+    enabled: !!courseId,
+    staleTime: 5 * 60 * 1000,
   });
 };

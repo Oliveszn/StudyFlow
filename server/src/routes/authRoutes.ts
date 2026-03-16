@@ -104,7 +104,7 @@ const router = express.Router();
  *         description: Validation error
  */
 router.post("/register", authLimiter, registerUser);
-router.post("/register/instructor", registerInstructor);
+router.post("/register/instructor", authLimiter, registerInstructor);
 /**
  * @swagger
  * /auth/login:
