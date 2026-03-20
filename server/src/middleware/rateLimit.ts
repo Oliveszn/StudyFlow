@@ -16,7 +16,7 @@ const createLimiter = (options: {
     store: new RedisStore({
       sendCommand: (...args: string[]): Promise<RedisReply> => {
         return redisClient.call(
-          ...(args as [string, ...string[]])
+          ...(args as [string, ...string[]]),
         ) as Promise<RedisReply>;
       },
       prefix: options.keyPrefix || "rl:",
@@ -30,10 +30,9 @@ const createLimiter = (options: {
       message: "Too many requests. Please try again later.",
     },
 
-    // keyGenerator: (req) => {
-    //    const ip = rateLimit.ipKeyGenerator(req, res);
-    //   return `${ip}-${options.keyPrefix}`;
-    // },
+    keyGenerator: (req) => {
+      return `${req.ip}-${options.keyPrefix}`;
+    },
   });
 
 export const generalLimiter = createLimiter({
@@ -48,21 +47,28 @@ export const authLimiter = createLimiter({
   keyPrefix: "auth",
 });
 
+export const paymentLimiter = createLimiter({
+  windowMs: 1 * 60 * 1000,
+  max: 3,
+  keyPrefix: "payment",
+});
+
 // ddos protection rate limiter using Redis as storage
 export const rateLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: "middleware",
-  points: 10,
+  points: 20,
   duration: 1,
 });
 
 export const ddosProtection = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    await rateLimiter.consume(req.ip as string);
+    const key = req.user?.id || req.ip;
+    await rateLimiter.consume(key as string);
     return next();
   } catch {
     return res.status(429).json({
