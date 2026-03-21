@@ -29,10 +29,6 @@ const createLimiter = (options: {
       success: false,
       message: "Too many requests. Please try again later.",
     },
-
-    keyGenerator: (req) => {
-      return `${req.ip}-${options.keyPrefix}`;
-    },
   });
 
 export const generalLimiter = createLimiter({
