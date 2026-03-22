@@ -7,7 +7,9 @@ import {
 } from "@/api/endpoints/courses";
 import { useQuery } from "@tanstack/react-query";
 
-// Fetch all courses with optional filters/pagination
+/**
+ * Hook to fetch all courses with optional filters/pagination
+ */
 export const useGetCourses = (params?: Record<string, any>) => {
   return useQuery<CourseResponse>({
     queryKey: ["courses", params],
@@ -17,7 +19,9 @@ export const useGetCourses = (params?: Record<string, any>) => {
   });
 };
 
-// Fetch single course by slug
+/**
+ * Hook to fetch a specific course by slug
+ */
 export const useGetCourseBySlug = (slug: string) => {
   return useQuery<CourseDetailResponse>({
     queryKey: ["course", slug],
@@ -27,7 +31,9 @@ export const useGetCourseBySlug = (slug: string) => {
   });
 };
 
-// Fetch course curriculum
+/**
+ * Hook to fetch course curriculum
+ */
 export const useGetCourseCurriculum = (slug: string) => {
   return useQuery<CourseCurriculumResponse>({
     queryKey: ["course", slug, "curriculum"],
@@ -37,7 +43,9 @@ export const useGetCourseCurriculum = (slug: string) => {
   });
 };
 
-// Fetch course reviews
+/**
+ * Hook to fetch all course reviews
+ */
 export const useGetCourseReviews = (
   slug: string,
   params?: { page?: number; limit?: number; rating?: number },
@@ -50,7 +58,9 @@ export const useGetCourseReviews = (
   });
 };
 
-// Fetch featured courses
+/**
+ * Hook to fetch featured course
+ */
 export const useGetFeaturedCourses = (limit?: number) => {
   return useQuery<CourseResponse>({
     queryKey: ["courses", "featured", limit],
@@ -60,7 +70,9 @@ export const useGetFeaturedCourses = (limit?: number) => {
   });
 };
 
-// Fetch trending courses
+/**
+ * Hook to fetch trending courses
+ */
 export const useGetTrendingCourses = (limit?: number) => {
   return useQuery<CourseResponse>({
     queryKey: ["courses", "trending", limit],

@@ -16,6 +16,11 @@ import {
 } from "../../middleware/cloudinary";
 import logger from "../../utils/logger";
 
+/**
+ * @route   POST /api/instructor/sections/:sectionId/lessons
+ * @desc    Create a new lesson
+ * @access  Private (Instructor)
+ */
 export const createLesson = asyncHandler(
   async (req: Request, res: Response) => {
     const { sectionId } = req.params;
@@ -100,6 +105,11 @@ export const createLesson = asyncHandler(
   },
 );
 
+/**
+ * @route   GET /api/instructor/courses
+ * @desc    Get all lessons in a section
+ * @access  Private (Instructor)
+ */
 export const getLesson = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const instructorId = req.user!.id;
@@ -143,6 +153,11 @@ export const getLesson = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
+/**
+ * @route   PUT /api/instructor/lessons/:id
+ * @desc    Update a lesson in a section
+ * @access  Private (Instructor)
+ */
 export const updateLesson = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -239,6 +254,11 @@ export const updateLesson = asyncHandler(
   },
 );
 
+/**
+ * @route   DELETE /api/instructor/lessons/:id
+ * @desc    Delete a lesson from section
+ * @access  Private (Instructor)
+ */
 export const deleteLesson = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -306,6 +326,11 @@ export const deleteLesson = asyncHandler(
   },
 );
 
+/**
+ * @route   PATCH /api/instructor/sections/:sectionId/lessons/reorder
+ * @desc    Reorder lessons in section
+ * @access  Private (Instructor)
+ */
 export const reorderLessons = asyncHandler(
   async (req: Request, res: Response) => {
     const { sectionId } = req.params;
@@ -378,6 +403,11 @@ export const reorderLessons = asyncHandler(
   },
 );
 
+/**
+ * @route   POST /api/instructor/lessons/:id/upload-video
+ * @desc    Generate video url
+ * @access  Private (Instructor)
+ */
 export const generateVideoUploadUrl = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -430,6 +460,11 @@ export const generateVideoUploadUrl = asyncHandler(
   },
 );
 
+/**
+ * @route   PATCH /api/instructor/lessons/:lessonId/video
+ * @desc    Attach a video to lesson
+ * @access  Private (Instructor)
+ */
 export const attachLessonVideo = asyncHandler(
   async (req: Request, res: Response) => {
     const { lessonId } = req.params;
@@ -468,6 +503,11 @@ export const attachLessonVideo = asyncHandler(
   },
 );
 
+/**
+ * @route   POST /api/instructor/lessons/:id/attachments
+ * @desc    Add an attachment
+ * @access  Private (Instructor)
+ */
 export const addAttachment = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -538,6 +578,11 @@ export const addAttachment = asyncHandler(
   },
 );
 
+/**
+ * @route   DELETE /api/instructor/lessons/:id/attachments/:attachmentId
+ * @desc    Delete an attachment
+ * @access  Private (Instructor)
+ */
 export const deleteAttachment = asyncHandler(
   async (req: Request, res: Response) => {
     const { id, attachmentId } = req.params;

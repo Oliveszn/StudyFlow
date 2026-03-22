@@ -7,6 +7,9 @@ import {
 } from "@/api/endpoints/search";
 import { useQuery } from "@tanstack/react-query";
 
+/**
+ * Hook to get global search
+ */
 export const useGlobalSearch = (params: Record<string, any>) => {
   return useQuery<GlobalSearchResponse>({
     queryKey: ["search", "global", params],
@@ -16,6 +19,9 @@ export const useGlobalSearch = (params: Record<string, any>) => {
   });
 };
 
+/**
+ * Hook to search only cousres
+ */
 export const useSearchCourses = (params: Record<string, any>) => {
   return useQuery<SearchCoursesResponse>({
     queryKey: ["search", "courses", params],
@@ -25,6 +31,9 @@ export const useSearchCourses = (params: Record<string, any>) => {
   });
 };
 
+/**
+ * Hook to search only instructors
+ */
 export const useSearchInstructors = (params: Record<string, any>) => {
   return useQuery<SearchInstructorsResponse>({
     queryKey: ["search", "instructors", params],
@@ -34,6 +43,9 @@ export const useSearchInstructors = (params: Record<string, any>) => {
   });
 };
 
+/**
+ * Hook to get search suggestions
+ */
 export const useSearchSuggestions = (params: { q: string; limit?: number }) => {
   return useQuery<SearchSuggestionsResponse>({
     queryKey: ["search", "suggestions", params],

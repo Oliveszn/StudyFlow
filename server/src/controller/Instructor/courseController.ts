@@ -12,7 +12,7 @@ import {
 import logger from "../../utils/logger";
 
 /**
- * @route   GET /api/v1/instructor/courses
+ * @route   GET /api/instructor/courses
  * @desc    Get all courses for the authenticated instructor
  * @access  Private (Instructor)
  */
@@ -77,7 +77,7 @@ export const getInstructorCourses = asyncHandler(
 );
 
 /**
- * @route   POST /api/v1/instructor/courses
+ * @route   POST /api/instructor/courses
  * @desc    Create a new course
  * @access  Private (Instructor)
  */
@@ -153,7 +153,7 @@ export const createCourse = asyncHandler(
 );
 
 /**
- * @route   GET /api/v1/instructor/courses/:id
+ * @route   GET /api/instructor/courses/:id
  * @desc    Get course details by ID
  * @access  Private (Instructor - own courses only)
  */
@@ -208,7 +208,7 @@ export const getCourseById = asyncHandler(
 );
 
 /**
- * @route   PUT /api/v1/instructor/courses/:id
+ * @route   PUT /api/instructor/courses/:id
  * @desc    Update course
  * @access  Private (Instructor - own courses only)
  */
@@ -306,7 +306,7 @@ export const updateCourse = asyncHandler(
 );
 
 /**
- * @route   DELETE /api/v1/instructor/courses/:id
+ * @route   DELETE /api/instructor/courses/:id
  * @desc    Delete course
  * @access  Private (Instructor - own courses only)
  */
@@ -363,7 +363,7 @@ export const deleteCourse = asyncHandler(
 );
 
 /**
- * @route   PATCH /api/v1/instructor/courses/:id/publish
+ * @route   PATCH /api/instructor/courses/:id/publish
  * @desc    Publish a course
  * @access  Private (Instructor - own courses only)
  */
@@ -449,7 +449,7 @@ export const publishCourse = asyncHandler(
 );
 
 /**
- * @route   PATCH /api/v1/instructor/courses/:id/unpublish
+ * @route   PATCH /api/instructor/courses/:id/unpublish
  * @desc    Unpublish a course
  * @access  Private (Instructor - own courses only)
  */
@@ -494,7 +494,7 @@ export const unpublishCourse = asyncHandler(
 );
 
 /**
- * @route   GET /api/v1/instructor/courses/:id/analytics
+ * @route   GET /api/instructor/courses/:id/analytics
  * @desc    Get course analytics
  * @access  Private (Instructor - own courses only)
  */

@@ -3,6 +3,11 @@ import { Request, Response } from "express";
 import prisma from "../../prisma";
 import { ApiError } from "../../utils/error";
 
+/**
+ * @route   GET /api/instructor/courses/:courseId/reviews
+ * @desc    Get a course review
+ * @access  Private (Instructor)
+ */
 export const getCourseReviews = asyncHandler(
   async (req: Request, res: Response) => {
     const { courseId } = req.params;
@@ -58,9 +63,14 @@ export const getCourseReviews = asyncHandler(
         pages: Math.ceil(total / Number(limit)),
       },
     });
-  }
+  },
 );
 
+/**
+ * @route   GET /api/instructor/courses/:courseId/reviews/stats
+ * @desc    Get statistics of a review
+ * @access  Private (Instructor)
+ */
 export const getReviewStats = asyncHandler(
   async (req: Request, res: Response) => {
     const { courseId } = req.params;
@@ -102,7 +112,7 @@ export const getReviewStats = asyncHandler(
     // Calculate percentages
     const total = Object.values(distribution).reduce(
       (sum, count) => sum + count,
-      0
+      0,
     );
     const percentages = Object.entries(distribution).reduce(
       (acc, [rating, count]) => {
@@ -110,7 +120,7 @@ export const getReviewStats = asyncHandler(
           total > 0 ? Math.round((count / total) * 100) : 0;
         return acc;
       },
-      {} as Record<string, number>
+      {} as Record<string, number>,
     );
 
     // Get average rating
@@ -129,5 +139,5 @@ export const getReviewStats = asyncHandler(
         percentages,
       },
     });
-  }
+  },
 );

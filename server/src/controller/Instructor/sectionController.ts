@@ -10,6 +10,11 @@ import {
 } from "../../utils/validation";
 import logger from "../../utils/logger";
 
+/**
+ * @route   POST /api/instructor/courses/:courseId/sections
+ * @desc    Create a new section
+ * @access  Private (Instructor)
+ */
 export const createSection = asyncHandler(
   async (req: Request, res: Response) => {
     const { courseId } = req.params;
@@ -71,9 +76,14 @@ export const createSection = asyncHandler(
       message: "Section created successfully",
       data: section,
     });
-  }
+  },
 );
 
+/**
+ * @route   GET /api/instructor/sections/:id
+ * @desc    Get sections under courses
+ * @access  Private (Instructor)
+ */
 export const getSection = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const instructorId = req.user!.id;
@@ -127,6 +137,11 @@ export const getSection = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
+/**
+ * @route   PUT /api/instructor/sections/:id
+ * @desc    Update a section
+ * @access  Private (Instructor)
+ */
 export const updateSection = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -160,7 +175,7 @@ export const updateSection = asyncHandler(
         instructorId,
       });
       throw ApiError.notFound(
-        "Section not found or you do not have permission"
+        "Section not found or you do not have permission",
       );
     }
 
@@ -189,9 +204,14 @@ export const updateSection = asyncHandler(
       message: "Section updated successfully",
       data: section,
     });
-  }
+  },
 );
 
+/**
+ * @route   DELETE /api/instructor/sections/:id
+ * @desc    Delete a section under a course
+ * @access  Private (Instructor)
+ */
 export const deleteSection = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -226,7 +246,7 @@ export const deleteSection = asyncHandler(
         instructorId,
       });
       throw ApiError.notFound(
-        "Section not found or you do not have permission"
+        "Section not found or you do not have permission",
       );
     }
 
@@ -237,7 +257,7 @@ export const deleteSection = asyncHandler(
         lessonCount: section._count.lessons,
       });
       throw ApiError.badRequest(
-        "Cannot delete section with lessons. Delete lessons first."
+        "Cannot delete section with lessons. Delete lessons first.",
       );
     }
 
@@ -272,9 +292,14 @@ export const deleteSection = asyncHandler(
       success: true,
       message: "Section deleted successfully",
     });
-  }
+  },
 );
 
+/**
+ * @route   PATCH /api/instructor/courses/:courseId/sections/reorder
+ * @desc    Reorder sections in courses
+ * @access  Private (Instructor)
+ */
 export const reorderSections = asyncHandler(
   async (req: Request, res: Response) => {
     const { courseId } = req.params;
@@ -318,7 +343,7 @@ export const reorderSections = asyncHandler(
         sectionIds,
       });
       throw ApiError.badRequest(
-        "One or more sections not found in this course"
+        "One or more sections not found in this course",
       );
     }
 
@@ -328,8 +353,8 @@ export const reorderSections = asyncHandler(
         prisma.section.update({
           where: { id: item.sectionId },
           data: { order: item.order },
-        })
-      )
+        }),
+      ),
     );
 
     // Get updated sections
@@ -355,5 +380,5 @@ export const reorderSections = asyncHandler(
       message: "Sections reordered successfully",
       data: updatedSections,
     });
-  }
+  },
 );

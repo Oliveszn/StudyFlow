@@ -3,6 +3,11 @@ import { Request, Response } from "express";
 import prisma from "../../prisma";
 import { ApiError } from "../../utils/error";
 
+/**
+ * @route   GET /api/student/enrollments
+ * @desc    GEt enrollments
+ * @access  Private (Student)
+ */
 export const getEnrollments = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
@@ -55,6 +60,11 @@ export const getEnrollments = asyncHandler(
   },
 );
 
+/**
+ * @route   POST /api/student/enrollments
+ * @desc    Create enrollment
+ * @access  Private (Student)
+ */
 export const enrollInCourse = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
@@ -126,6 +136,11 @@ export const enrollInCourse = asyncHandler(
   },
 );
 
+/**
+ * @route   GET /api/student/enrollments/:id
+ * @desc    Get details of a particular enrollment
+ * @access  Private (Student)
+ */
 export const getEnrollmentDetails = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -198,6 +213,11 @@ export const getEnrollmentDetails = asyncHandler(
   },
 );
 
+/**
+ * @route   GET /api/student//enrollments/check/:courseId
+ * @desc    Check if user is enrolled in a course
+ * @access  Private (Student)
+ */
 export const checkEnrollment = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;

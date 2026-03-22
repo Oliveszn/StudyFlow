@@ -4,7 +4,11 @@ import prisma from "../../prisma";
 import { ApiError } from "../../utils/error";
 import redisService from "../../config/redis";
 
-////GET USERS WISHLIST
+/**
+ * @route   GET /api/student/wishlist
+ * @desc    Get users wishlist
+ * @access  Private (Student)
+ */
 export const getWishlist = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const { page = 1, limit = 12 } = req.query;
@@ -56,7 +60,7 @@ export const getWishlist = asyncHandler(async (req: Request, res: Response) => {
 
   ////filtering unpublished courses
   const publishedWishlist = wishlistItems.filter(
-    (item) => item.course.isPublished
+    (item) => item.course.isPublished,
   );
 
   res.status(200).json({
@@ -71,7 +75,11 @@ export const getWishlist = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
-///ADD A COURSE TO YOUR WISHLIST
+/**
+ * @route   POST /api/student/wishlist
+ * @desc    Add a course to wishlist
+ * @access  Private (Student)
+ */
 export const addToWishlist = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
@@ -158,10 +166,14 @@ export const addToWishlist = asyncHandler(
       message: "Course added to wishlist",
       data: wishlistItem,
     });
-  }
+  },
 );
 
-///REMOVE CPOURSE FROM YOUR WISHLIST
+/**
+ * @route   GET /api/student/wishlist/courseId
+ * @desc    Remove from wishlist
+ * @access  Private (Student)
+ */
 export const removeFromWishlist = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
@@ -195,10 +207,14 @@ export const removeFromWishlist = asyncHandler(
       success: true,
       message: "Course removed from wishlist",
     });
-  }
+  },
 );
 
-///CHECK IF COURSE IS IN WISHLIST
+/**
+ * @route   GET /api/student/wishlist/check/:courseId
+ * @desc    Check for course in wishlist
+ * @access  Private (Student)
+ */
 export const checkInWishlist = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
@@ -220,10 +236,14 @@ export const checkInWishlist = asyncHandler(
         wishlistId: wishlistItem?.id || null,
       },
     });
-  }
+  },
 );
 
-///CLEAR ENTIRE WISHLIST
+/**
+ * @route   DELETE /api/student/wishlist
+ * @desc    Clear entire wishlist
+ * @access  Private (Student)
+ */
 export const clearWishlist = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
@@ -240,5 +260,5 @@ export const clearWishlist = asyncHandler(
         deletedCount: result.count,
       },
     });
-  }
+  },
 );

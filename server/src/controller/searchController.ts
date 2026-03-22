@@ -4,7 +4,11 @@ import { Request, Response } from "express";
 import redisService from "../config/redis";
 import prisma from "../prisma";
 
-///SEARCH INSTRUCTORS AND COURSES
+/**
+ * @route   GET /api/search/
+ * @desc    Search all instructors and courses
+ * @access  Public
+ */
 export const globalSearch = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -142,10 +146,14 @@ export const globalSearch = asyncHandler(
     await redisService.set(cacheKey, JSON.stringify(response), 600);
 
     res.status(200).json(response);
-  }
+  },
 );
 
-///SEARCH COURSES ONLY
+/**
+ * @route   GET /api/serach/courses
+ * @desc    Search courses only
+ * @access  Public
+ */
 export const searchCourses = asyncHandler(
   async (req: Request, res: Response) => {
     const {
@@ -273,10 +281,14 @@ export const searchCourses = asyncHandler(
     await redisService.set(cacheKey, JSON.stringify(response), 600); //10 mins
 
     res.status(200).json(response);
-  }
+  },
 );
 
-///SEARCH INSTRUCTORS
+/**
+ * @route   GET /api/search/instructors
+ * @desc    Search instructors only
+ * @access  Public
+ */
 export const searchInstructors = asyncHandler(
   async (req: Request, res: Response) => {
     const { q, page = 1, limit = 12 } = req.query;
@@ -352,10 +364,14 @@ export const searchInstructors = asyncHandler(
     await redisService.set(cacheKey, JSON.stringify(response), 900); //15 mins
 
     res.status(200).json(response);
-  }
+  },
 );
 
-///ETING SEARCH SUGGESTIONS
+/**
+ * @route   GET /api/search/suggestions
+ * @desc    Search suggestions
+ * @access  Public
+ */
 export const getSearchSuggestions = asyncHandler(
   async (req: Request, res: Response) => {
     const { q, limit = 10 } = req.query;
@@ -441,5 +457,5 @@ export const getSearchSuggestions = asyncHandler(
     await redisService.set(cacheKey, JSON.stringify(response), 1800); //30 mins
 
     res.status(200).json(response);
-  }
+  },
 );

@@ -70,7 +70,7 @@ export default function PaymentSuccess({
                   {transaction.courseName}
                 </p>
                 <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
-                  <span>Amount: ${transaction.amount}</span>
+                  <span>Amount: ₦{transaction.amount}</span>
                   <span>•</span>
                   <span className="uppercase">{transaction.currency}</span>
                 </div>

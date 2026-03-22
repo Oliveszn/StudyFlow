@@ -13,6 +13,9 @@ export const useCategories = () => {
   });
 };
 
+/**
+ * Hook to get categories by slug
+ */
 export const useCategoryBySlug = (slug?: string) => {
   return useQuery({
     queryKey: ["category", slug],
@@ -22,6 +25,9 @@ export const useCategoryBySlug = (slug?: string) => {
   });
 };
 
+/**
+ * Hook to get course in a category
+ */
 export const useCategoryCourses = (params: {
   slug?: string;
   page?: number;

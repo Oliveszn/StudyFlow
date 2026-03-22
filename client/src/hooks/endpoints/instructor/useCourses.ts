@@ -3,10 +3,6 @@ import {
   GetInstructorCoursesParams,
 } from "@/api/endpoints/instructor/courses";
 import { handleApiError } from "@/utils/apiError";
-// import {
-//   CreateCourseSchema,
-//   UpdateCourseSchema,
-// } from "@/utils/validationSchema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 

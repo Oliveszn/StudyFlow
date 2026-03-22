@@ -7,7 +7,9 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-// Fetch wishlist
+/**
+ * Hook to fetch wishlist
+ */
 export const useWishlist = (params?: { page?: number; limit?: number }) => {
   return useQuery<WishlistListResponse>({
     queryKey: ["wishlist", params],
@@ -16,6 +18,9 @@ export const useWishlist = (params?: { page?: number; limit?: number }) => {
   });
 };
 
+/**
+ * Hook to add to wishlist
+ */
 export const useAddToWishlist = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -40,6 +45,9 @@ export const useAddToWishlist = () => {
   });
 };
 
+/**
+ * Hook to remove from wishlist
+ */
 export const useRemoveFromWishlist = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -66,7 +74,9 @@ export const useRemoveFromWishlist = () => {
   });
 };
 
-// Check if a course is in wishlist
+/**
+ * Hook to check if course is in wishlist
+ */
 export const useCheckWishlist = (courseId: string) => {
   return useQuery<WishlistCheckResponse>({
     queryKey: ["wishlist-check", courseId],
@@ -75,7 +85,9 @@ export const useCheckWishlist = (courseId: string) => {
   });
 };
 
-// Clear wishlist
+/**
+ * Hook to clear entire wishlist
+ */
 export const useClearWishlist = () => {
   const queryClient = useQueryClient();
   return useMutation({

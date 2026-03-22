@@ -6,7 +6,7 @@ import { ApiError } from "../utils/error";
 import { Prisma } from "@prisma/client";
 
 /**
- * @route   GET /api/v1/courses
+ * @route   GET /api/courses
  * @desc    Get all published courses with filters
  * @access  Public
  */
@@ -134,7 +134,7 @@ export const getCourses = asyncHandler(async (req: Request, res: Response) => {
 });
 
 /**
- * @route   GET /api/v1/courses/:slug
+ * @route   GET /api/courses/:slug
  * @desc    Get course details by slug
  * @access  Public
  */
@@ -205,7 +205,7 @@ export const getCourseBySlug = asyncHandler(
 );
 
 /**
- * @route   GET /api/v1/courses/:slug/curriculum
+ * @route   GET /api/courses/:slug/curriculum
  * @desc    Get course curriculum (sections and lessons)
  * @access  Public
  */
@@ -303,7 +303,7 @@ export const getCourseCurriculum = asyncHandler(
 );
 
 /**
- * @route   GET /api/v1/courses/:slug/reviews
+ * @route   GET /api/courses/:slug/reviews
  * @desc    Get course reviews
  * @access  Public
  */
@@ -389,7 +389,7 @@ export const getCourseReviews = asyncHandler(
 );
 
 /**
- * @route   GET /api/v1/courses/featured
+ * @route   GET /api/courses/featured
  * @desc    Get featured courses
  * @access  Public
  */
@@ -439,7 +439,7 @@ export const getFeaturedCourses = asyncHandler(
 );
 
 /**
- * @route   GET /api/v1/courses/trending
+ * @route   GET /api/courses/trending
  * @desc    Get trending courses (most enrollments in last 30 days)
  * @access  Public
  */

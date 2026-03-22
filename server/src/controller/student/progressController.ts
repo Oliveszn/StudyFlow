@@ -3,6 +3,11 @@ import { Request, Response } from "express";
 import prisma from "../../prisma";
 import { ApiError } from "../../utils/error";
 
+/**
+ * @route   GET /api/student/courses/:courseId/progress
+ * @desc    Get course progress
+ * @access  Private (Student)
+ */
 export const getCourseProgress = asyncHandler(
   async (req: Request, res: Response) => {
     const { courseId } = req.params;
@@ -89,6 +94,11 @@ export const getCourseProgress = asyncHandler(
   },
 );
 
+/**
+ * @route   GET /api/student/lessons/:lessonId
+ * @desc    Get a lesson
+ * @access  Private (Student)
+ */
 export const getLesson = asyncHandler(async (req: Request, res: Response) => {
   const { lessonId } = req.params;
   const userId = req.user!.id;
@@ -169,6 +179,11 @@ export const getLesson = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
+/**
+ * @route   GET /api/student/lessons/:lessonId/video-url
+ * @desc    Get Video url attached to a lesson
+ * @access  Private (Student)
+ */
 export const getLessonVideoUrl = asyncHandler(
   async (req: Request, res: Response) => {
     const { lessonId } = req.params;
@@ -226,6 +241,11 @@ export const getLessonVideoUrl = asyncHandler(
   },
 );
 
+/**
+ * @route   POST /api/student/lessons/:lessonId/complete
+ * @desc    Mark a lesson as complete when done
+ * @access  Private (Student)
+ */
 export const markLessonComplete = asyncHandler(
   async (req: Request, res: Response) => {
     const { lessonId } = req.params;
@@ -330,6 +350,11 @@ export const markLessonComplete = asyncHandler(
   },
 );
 
+/**
+ * @route   PUT /api/student/lessons/:lessonId/progress
+ * @desc    Update progress for a video
+ * @access  Private (Student)
+ */
 export const updateVideoProgress = asyncHandler(
   async (req: Request, res: Response) => {
     const { lessonId } = req.params;

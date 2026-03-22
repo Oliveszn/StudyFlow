@@ -7,6 +7,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+/**
+ * Hook to create a new user
+ */
 export const useRegister = () => {
   const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
@@ -44,6 +47,9 @@ export const useRegister = () => {
   });
 };
 
+/**
+ * Hook to create a new user (instuctor)
+ */
 export const useRegisterInstructor = () => {
   const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
@@ -81,6 +87,9 @@ export const useRegisterInstructor = () => {
   });
 };
 
+/**
+ * Hook to login a user
+ */
 export const useLogin = () => {
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
@@ -118,6 +127,9 @@ export const useLogin = () => {
   });
 };
 
+/**
+ * Hook to logout
+ */
 export const useLogout = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -144,6 +156,9 @@ export const useLogout = () => {
   });
 };
 
+/**
+ * Hook to check auth status
+ */
 export const useCheckAuth = () => {
   const dispatch = useAppDispatch();
   return useQuery({

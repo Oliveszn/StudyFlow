@@ -6,7 +6,9 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-// Fetch user enrollments
+/**
+ * Hook to fetch user enrollments
+ */
 export const useEnrollments = (params?: {
   status?: string;
   page?: number;
@@ -20,7 +22,9 @@ export const useEnrollments = (params?: {
   });
 };
 
-// Enroll in a course
+/**
+ * Hook to let users enroll in a course
+ */
 export const useEnrollInCourse = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -35,7 +39,9 @@ export const useEnrollInCourse = () => {
   });
 };
 
-// Get enrollment details
+/**
+ * Hook to get enrollment details
+ */
 export const useEnrollmentDetails = (id: string) => {
   return useQuery<EnrollmentDetailsResponse>({
     queryKey: ["enrollment", id],
@@ -45,6 +51,9 @@ export const useEnrollmentDetails = (id: string) => {
   });
 };
 
+/**
+ * Hook to check enrollment status
+ */
 export const useCheckEnrollment = (courseId: string) => {
   return useQuery({
     queryKey: ["enrollment-check", courseId],

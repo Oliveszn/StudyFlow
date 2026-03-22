@@ -7,6 +7,9 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+/**
+ * Hook to initialize payment
+ */
 export const useInitializePayment = () => {
   return useMutation({
     mutationFn: (courseId: string) => paymentApi.initializePayment(courseId),
@@ -21,6 +24,9 @@ export const useInitializePayment = () => {
   });
 };
 
+/**
+ * Hook to verify payment
+ */
 export const useVerifyPayment = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -35,6 +41,9 @@ export const useVerifyPayment = () => {
   });
 };
 
+/**
+ * Hook to get transaction history
+ */
 export const useTransactionHistory = (params?: {
   page?: number;
   limit?: number;
@@ -48,6 +57,9 @@ export const useTransactionHistory = (params?: {
   });
 };
 
+/**
+ * Hook to get details of a specific transcation
+ */
 export const useTransactionDetails = (id: string) => {
   return useQuery<{ success: boolean; data: Transaction }>({
     queryKey: ["transaction", id],

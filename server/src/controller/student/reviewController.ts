@@ -23,6 +23,11 @@ async function updateCourseRating(courseId: string) {
   });
 }
 
+/**
+ * @route   POST api/student/courses/:courseId/reviews
+ * @desc    Create a review
+ * @access  Private (Student)
+ */
 export const createReview = asyncHandler(
   async (req: Request, res: Response) => {
     const { courseId } = req.params;
@@ -51,7 +56,7 @@ export const createReview = asyncHandler(
 
     if (!enrollment) {
       throw ApiError.forbidden(
-        "You must be enrolled in this course to leave a review"
+        "You must be enrolled in this course to leave a review",
       );
     }
 
@@ -67,7 +72,7 @@ export const createReview = asyncHandler(
 
     if (existingReview) {
       throw ApiError.badRequest(
-        "You have already reviewed this course. Use update to modify your review."
+        "You have already reviewed this course. Use update to modify your review.",
       );
     }
 
@@ -102,9 +107,14 @@ export const createReview = asyncHandler(
       message: "Review created successfully",
       data: review,
     });
-  }
+  },
 );
 
+/**
+ * @route   GET /api/student/reviews
+ * @desc    Get reviews
+ * @access  Private (Student)
+ */
 export const getMyReviews = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
@@ -142,9 +152,14 @@ export const getMyReviews = asyncHandler(
         pages: Math.ceil(total / Number(limit)),
       },
     });
-  }
+  },
 );
 
+/**
+ * @route   GET /api/student/courses/:courseId/my-review
+ * @desc    Get a review
+ * @access  Private (Student)
+ */
 export const getMyReviewForCourse = asyncHandler(
   async (req: Request, res: Response) => {
     const { courseId } = req.params;
@@ -186,9 +201,14 @@ export const getMyReviewForCourse = asyncHandler(
       success: true,
       data: review,
     });
-  }
+  },
 );
 
+/**
+ * @route   PUT /api/student/reviews/:id
+ * @desc    Update a review
+ * @access  Private (Student)
+ */
 export const updateReview = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -210,7 +230,7 @@ export const updateReview = asyncHandler(
 
     if (!existingReview) {
       throw ApiError.notFound(
-        "Review not found or you do not have permission to update it"
+        "Review not found or you do not have permission to update it",
       );
     }
 
@@ -244,9 +264,14 @@ export const updateReview = asyncHandler(
       message: "Review updated successfully",
       data: review,
     });
-  }
+  },
 );
 
+/**
+ * @route   DELETE /api/student/reviews/:id
+ * @desc    Delete a review
+ * @access  Private (Student)
+ */
 export const deleteReview = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -267,7 +292,7 @@ export const deleteReview = asyncHandler(
 
     if (!review) {
       throw ApiError.notFound(
-        "Review not found or you do not have permission to delete it"
+        "Review not found or you do not have permission to delete it",
       );
     }
 
@@ -285,5 +310,5 @@ export const deleteReview = asyncHandler(
       success: true,
       message: "Review deleted successfully",
     });
-  }
+  },
 );

@@ -7,7 +7,9 @@ import {
 } from "@/api/endpoints/student/progress";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-// Course progress
+/**
+ * Hook to get course progress for a user
+ */
 export const useCourseProgress = (courseId: string) =>
   useQuery<CourseProgress>({
     queryKey: ["course-progress", courseId],
@@ -15,7 +17,9 @@ export const useCourseProgress = (courseId: string) =>
     staleTime: 2 * 60 * 1000,
   });
 
-// Lesson details
+/**
+ * Hook to get lesson details
+ */
 export const useLesson = (lessonId: string) =>
   useQuery<{ lesson: LessonProgress["lesson"]; progress: LessonProgress }>({
     queryKey: ["lesson", lessonId],
@@ -24,7 +28,9 @@ export const useLesson = (lessonId: string) =>
     enabled: !!lessonId,
   });
 
-// Lesson video URL
+/**
+ * Hook to get a video url
+ */
 export const useLessonVideoUrl = (lessonId: string) =>
   useQuery<LessonVideoUrl>({
     queryKey: ["lesson-video-url", lessonId],
@@ -32,7 +38,9 @@ export const useLessonVideoUrl = (lessonId: string) =>
     staleTime: 60 * 60 * 1000,
   });
 
-// Mark lesson complete
+/**
+ * Hook to mark a lesson as complete
+ */
 export const useMarkLessonComplete = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -44,7 +52,9 @@ export const useMarkLessonComplete = () => {
   });
 };
 
-// Update video progress
+/**
+ * Hook to updtae video progress
+ */
 export const useUpdateVideoProgress = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -62,7 +72,6 @@ export const useUpdateVideoProgress = () => {
   });
 };
 
-// Student dashboard
 export const useStudentDashboard = () =>
   useQuery<StudentDashboard>({
     queryKey: ["student-dashboard"],

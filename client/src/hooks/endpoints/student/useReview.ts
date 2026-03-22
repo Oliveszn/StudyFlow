@@ -2,14 +2,18 @@ import { Review } from "@/api/endpoints/courses";
 import { PaginatedReviews, reviewsApi } from "@/api/endpoints/student/review";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-// Get my reviews
+/**
+ * Hook to fetch a user's review
+ */
 export const useMyReviews = (page = 1, limit = 10) =>
   useQuery<PaginatedReviews>({
     queryKey: ["my-reviews", page, limit],
     queryFn: () => reviewsApi.getMyReviews(page, limit),
   });
 
-// Get my review for a specific course
+/**
+ * Hook to get review for a specific course
+ */
 export const useMyReviewForCourse = (courseId: string) =>
   useQuery<Review | null>({
     queryKey: ["my-review", courseId],
@@ -17,7 +21,9 @@ export const useMyReviewForCourse = (courseId: string) =>
     staleTime: 5 * 60 * 1000,
   });
 
-// Create review
+/**
+ * Hook to create review
+ */
 export const useCreateReview = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -37,7 +43,9 @@ export const useCreateReview = () => {
   });
 };
 
-// Update review
+/**
+ * Hook to update review
+ */
 export const useUpdateReview = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -56,7 +64,9 @@ export const useUpdateReview = () => {
   });
 };
 
-// Delete review
+/**
+ * Hook to delete review
+ */
 export const useDeleteReview = () => {
   const queryClient = useQueryClient();
   return useMutation({

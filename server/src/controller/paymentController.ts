@@ -13,7 +13,11 @@ import crypto from "crypto";
 
 const paystackService = PaystackService();
 
-///INITIALIZE PAYMENT FOR A COURSE
+/**
+ * @route   POST /api/payments/initialize
+ * @desc    Initialixe payment for a course
+ * @access  Public
+ */
 export const initializePayment = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
@@ -180,7 +184,11 @@ export const initializePayment = asyncHandler(
   },
 );
 
-////VERIFY PAYMENT AND COMPLETE ENROLLMENT
+/**
+ * @route   GET /api/payment/verify/:reference
+ * @desc    Verify payment and complete purchase
+ * @access  Public
+ */
 export const verifyPayment = asyncHandler(
   async (req: Request, res: Response) => {
     const { reference } = req.params;
@@ -307,7 +315,11 @@ export const verifyPayment = asyncHandler(
   },
 );
 
-///PAYSTACK WEBHOOKS
+/**
+ * @route   POST /api/payment/webhook/paystack
+ * @desc    Paystack webhook
+ * @access  Public
+ */
 export const paystackWebhook = asyncHandler(
   async (req: Request, res: Response) => {
     const hash = crypto
@@ -344,7 +356,11 @@ export const paystackWebhook = asyncHandler(
   },
 );
 
-////GET TRANSACTION DETAILS
+/**
+ * @route   GET /api/payment/transactions
+ * @desc    Get transaction details
+ * @access  Public
+ */
 export const getTransactionDetails = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -379,7 +395,11 @@ export const getTransactionDetails = asyncHandler(
   },
 );
 
-////GET USERS TRANSACTION HISTORY
+/**
+ * @route   GET /api/payment/transactions?:id
+ * @desc    Get users transaction history
+ * @access  Public
+ */
 export const getTransactionHistory = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
