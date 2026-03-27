@@ -3,6 +3,7 @@ import {
   EnrollmentDetailsResponse,
   EnrollmentListResponse,
 } from "@/api/endpoints/student/enrollments";
+import { useAppSelector } from "@/store/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -55,10 +56,11 @@ export const useEnrollmentDetails = (id: string) => {
  * Hook to check enrollment status
  */
 export const useCheckEnrollment = (courseId: string) => {
+  const { user } = useAppSelector((state) => state.auth);
   return useQuery({
     queryKey: ["enrollment-check", courseId],
     queryFn: () => enrollmentApi.checkEnrollment(courseId),
-    enabled: !!courseId,
+    enabled: !!user && !!courseId,
     staleTime: 5 * 60 * 1000,
   });
 };

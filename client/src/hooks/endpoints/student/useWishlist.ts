@@ -4,6 +4,7 @@ import {
   WishlistCheckResponse,
   WishlistListResponse,
 } from "@/api/endpoints/student/wishlist";
+import { useAppSelector } from "@/store/hooks";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -78,10 +79,12 @@ export const useRemoveFromWishlist = () => {
  * Hook to check if course is in wishlist
  */
 export const useCheckWishlist = (courseId: string) => {
+  const { user } = useAppSelector((state) => state.auth);
   return useQuery<WishlistCheckResponse>({
     queryKey: ["wishlist-check", courseId],
     queryFn: () => wishlistApi.checkInWishlist(courseId),
     staleTime: 5 * 60 * 1000,
+    enabled: !!user,
   });
 };
 
